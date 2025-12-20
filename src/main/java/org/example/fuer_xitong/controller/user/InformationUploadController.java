@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
+@CrossOrigin
 @RestController
 @RequestMapping("/user/upload")
 @Slf4j
@@ -47,12 +47,8 @@ public class InformationUploadController {
         return Result.success();
     }
 
-    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/piinfo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result addPiInfo(@ModelAttribute PiInfoDTO dto) {
-        // 获取当前用户工号
-        String userId = BaseContext.getCurrentId();
-        dto.setId(userId);
-
         professionalGroupService.addPiInfo(dto);
         return Result.success("PI信息提交成功");
     }

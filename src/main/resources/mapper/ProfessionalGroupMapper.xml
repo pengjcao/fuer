@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.ProfessionalGroupMapper">
+
+    <insert id="insertPiInfo">
+        INSERT INTO pi_info (
+            ID,
+            professional,
+            pi_photo_path,
+            senior_title_certificate_path,
+            senior_title_appointment_path,
+            signed_resume_path,
+            qualification_certificate_path,
+            practice_certificate_path,
+            gcp_certificate_path,
+            shanchang,
+            clinical_participation,
+            clinical_reason,
+            clinical_root_path
+        ) VALUES (
+                     #{Id},
+                     #{professional},
+                     #{piPhotoPath},
+                     #{seniorTitleCertificatePath},
+                     #{seniorTitleAppointmentPath},
+                     #{signedResumePath},
+                     #{qualificationCertificatePath},
+                     #{practiceCertificatePath},
+                     #{gcpCertificatePath},
+                     #{shanchang},
+                     #{clinicalParticipation},
+                     #{clinicalReason},
+                     #{clinicalRootPath}
+                 )
+    </insert>
+
+
+
+
+    <select id="selectPiinfoById" resultType="org.example.fuer_xitong.pojo.vo.PiInfoVO">
+        SELECT
+            ID,
+            professional,
+            pi_photo_path,
+            senior_title_certificate_path,
+            senior_title_appointment_path,
+            signed_resume_path,
+            qualification_certificate_path,
+            practice_certificate_path,
+            gcp_certificate_path,
+            shanchang,
+            clinical_participation,
+            clinical_reason,
+            apply_status,
+            current_step,
+            submit_time,
+            pi_info_id
+        FROM pi_info
+        WHERE ID = #{id} AND pi_info_id = #{piInfoId}
+            LIMIT 1
+    </select>
+
+
+</mapper>

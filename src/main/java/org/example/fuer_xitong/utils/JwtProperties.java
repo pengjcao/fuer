@@ -17,9 +17,10 @@ public class JwtProperties {
     private String adminTokenName;
 
 
+
     /*研究者端*/
     private String userSecretKey;
     private long userTtl;
     private String userTokenName;
-
+    private Integer role;
 }

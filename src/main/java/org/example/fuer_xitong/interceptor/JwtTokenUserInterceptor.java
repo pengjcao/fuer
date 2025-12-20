@@ -50,9 +50,11 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
 
             Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
             String userId = claims.get(JwtClaimsConstant.USER_ID, String.class);
+            Integer role = claims.get("role", Integer.class);
             log.info("当前用户的id: {}", userId);
 
             BaseContext.setCurrentId(userId);
+            BaseContext.setCurrentRole(role);
 
             // 放行
             return true;

@@ -20,4 +20,7 @@ public class UserLoginVO implements Serializable {
 
     /*登录过后的凭证*/
     private String token;
+
+    private Integer role;
+
 }

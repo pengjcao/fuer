@@ -12,7 +12,7 @@ public interface Userservice {
 
     void setUserInformationById(UserInformationDTO userInformationDTO);
 
-
+     Integer getRole(String ID);
 //    void upload(MultipartFile file ,String userId);
 
 }

@@ -48,6 +48,16 @@ public class UserServiceImpl implements Userservice {
     }
 
     @Override
+
+    public Integer getRole(String ID) {
+        if (ID != null) {
+            ID = ID.trim();  // 去掉前后空格和换行符
+        }
+        return userMapper.getRoleBy(ID);
+    }
+
+
+    @Override
     public void setUserInformationById(UserInformationDTO userInformationDTO)
     {
         int hangshu;

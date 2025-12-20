@@ -1,9 +1,7 @@
 package org.example.fuer_xitong.mapper;
 
 import org.apache.catalina.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.example.fuer_xitong.pojo.dto.UserInformationDTO;
 import org.example.fuer_xitong.pojo.dto.UserLoginDTO;
 import org.example.fuer_xitong.pojo.vo.UserInformationVO;
@@ -21,5 +19,9 @@ public interface UserMapper {
             "keshi = VALUES(keshi), " +
             "shanchang = VALUES(shanchang)")
     int setUserInformationById(UserInformationDTO userInformationDTO);
+
+
+    @Select("SELECT role FROM user WHERE ID = #{id}")
+    Integer getRoleBy(@Param("id") String id);
 
 }
