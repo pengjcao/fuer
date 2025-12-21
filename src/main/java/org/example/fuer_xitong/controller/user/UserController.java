@@ -86,7 +86,7 @@ public class UserController {
         List<Department> departments = departmentService.listAll();
 
         List<String> keshiNames = departments.stream()
-                .map(Department::getKeshi_mingcheng)
+                .map(Department::getKeshiMingcheng)
                 .toList();
         return Result.success(keshiNames);
     }

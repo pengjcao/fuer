@@ -30,5 +30,5 @@ public class PiInfoVO {
     private int currentStep;
     private Date submitTime;
 
-    private int pi_info_id;
+    private int piInfoId;
 }

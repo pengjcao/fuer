@@ -3,12 +3,12 @@ package org.example.fuer_xitong.controller.admin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.fuer_xitong.pojo.dto.AdminLoginDTO;
-import org.example.fuer_xitong.pojo.dto.UserLoginDTO;
+
 import org.example.fuer_xitong.pojo.entity.Department;
 import org.example.fuer_xitong.pojo.entity.JwtClaimsConstant;
 import org.example.fuer_xitong.pojo.vo.AdminLoginVO;
 import org.example.fuer_xitong.pojo.vo.UserInformationVO;
-import org.example.fuer_xitong.pojo.vo.UserLoginVO;
+
 import org.example.fuer_xitong.service.Adminservice;
 import org.example.fuer_xitong.service.DepartmentService;
 import org.example.fuer_xitong.utils.JwtProperties;
@@ -65,12 +65,10 @@ public class AdminController {
     public Result<List<String>> listDepartment() {
         List<Department> departments = departmentService.listAll();
         List<String> keshiNames = departments.stream()
-                .map(Department::getKeshi_mingcheng)
+                .map(Department::getKeshiMingcheng)
                 .toList();
         return Result.success(keshiNames);
     }
-
-
 
 
 //    @GetMapping("/department")

@@ -13,5 +13,5 @@ public class Department {
     /**
      * 科室中文名称（如 传染科、心内科）
      */
-    private String keshi_mingcheng;
+    private String keshiMingcheng;
 }

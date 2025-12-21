@@ -64,4 +64,40 @@
     </select>
 
 
+    <update id="updatePiInfo"
+            parameterType="org.example.fuer_xitong.pojo.vo.PiInfoVO">
+        UPDATE pi_info
+        SET
+            current_step = #{currentStep},
+            apply_status = #{applyStatus}
+        WHERE
+            ID = #{id}
+          AND pi_info_id = #{piInfoId}
+    </update>
+
+
+    <insert id="insertApprovalLog"
+            parameterType="org.example.fuer_xitong.pojo.vo.PiApprovalLogVO">
+        INSERT INTO pi_approval_log (
+            pi_info_id,
+            pi_id,
+            approver_id,
+            role,
+            current_step,
+            apply_status,
+            comment,
+            approve_time
+        ) VALUES (
+                     #{piInfoId},
+                     #{piId},
+                     #{approverId},
+                     #{role},
+                     #{currentStep},
+                     #{applyStatus},
+                     #{comment},
+                     #{approveTime}
+                 )
+    </insert>
+
+
 </mapper>
