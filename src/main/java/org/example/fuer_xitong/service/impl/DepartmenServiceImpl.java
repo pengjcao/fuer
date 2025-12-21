@@ -3,7 +3,6 @@ package org.example.fuer_xitong.service.impl;
 import org.example.fuer_xitong.mapper.DepartmentMapper;
 import org.example.fuer_xitong.pojo.entity.Department;
 import org.example.fuer_xitong.pojo.vo.UserInformationVO;
-import org.example.fuer_xitong.service.Adminservice;
 import org.example.fuer_xitong.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
