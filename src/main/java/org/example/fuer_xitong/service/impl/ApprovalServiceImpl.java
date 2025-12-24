@@ -22,7 +22,7 @@ public class ApprovalServiceImpl implements ApprovalService {
         if (pi == null) return false;
 
         // 2. 权限校验：当前审批者角色必须等于数据库里的 current_step
-        if (role.equals(pi.getCurrentStep())) {
+        if (!role.equals(pi.getCurrentStep()+1)) {
             return false;
         }
 

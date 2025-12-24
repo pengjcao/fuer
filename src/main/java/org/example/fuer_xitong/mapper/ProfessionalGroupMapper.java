@@ -3,6 +3,7 @@ package org.example.fuer_xitong.mapper;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.example.fuer_xitong.pojo.dto.PiInfoMinimalDTO;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 
@@ -34,6 +35,30 @@ public interface ProfessionalGroupMapper {
             @Param("clinicalRootPath") String clinicalRootPath
     );
 
+//下面这三个是为了插入的时候好区分文件
+    void insertPiInfoMinimal(PiInfoMinimalDTO dto);
+
+
+    Integer selectLastInsertId(@Param("id") String id);
+
+    void updatePiInfoFiles(
+            @Param("piInfoId") Integer piInfoId,
+            @Param("piPhotoPath") String piPhotoPath,
+            @Param("seniorTitleCertificatePath") String seniorTitleCertificatePath,
+            @Param("seniorTitleAppointmentPath") String seniorTitleAppointmentPath,
+            @Param("signedResumePath") String signedResumePath,
+            @Param("qualificationCertificatePath") String qualificationCertificatePath,
+            @Param("practiceCertificatePath") String practiceCertificatePath,
+            @Param("gcpCertificatePath") String gcpCertificatePath,
+            @Param("clinicalParticipation") Integer clinicalParticipation,
+            @Param("clinicalReason") String clinicalReason,
+            @Param("clinicalRootPath") String clinicalRootPath,
+            @Param("selfAssessmentReportPath") String selfAssessmentReportPath, // 新增
+            @Param("recordTypes") String recordTypes,                             // 新增
+            @Param("hospitalAreas") String hospitalAreas                          // 新增
+    );
+
+
 
 
     @Select("""
@@ -45,6 +70,16 @@ public interface ProfessionalGroupMapper {
     List<PiInfoVO> selectPendingApprovalVO();
 
 
+    @Select("""
+        SELECT *
+        FROM pi_info
+        WHERE current_step = 5
+        ORDER BY submit_time DESC
+    """)
+    List<PiInfoVO> selectApprovedPiVO();
+
+
+
     PiInfoVO selectPiinfoById(@Param("id") String id ,@Param("piInfoId") int pi_info_id);
 
 
@@ -52,6 +87,14 @@ public interface ProfessionalGroupMapper {
 
 
     int insertApprovalLog(PiApprovalLogVO log);
+
+
+    List<PiInfoVO> getByIdAndProfessionalList(
+            @Param("id") String id,
+            @Param("professional") String professional
+    );
+
+
 
 
 }

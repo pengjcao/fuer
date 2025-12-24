@@ -28,8 +28,15 @@ public class UserApprovalController {
         return Result.success(list);
     }
 
-    /** 机构办秘书审批（步骤2） */
-    @PostMapping("/secretaryReview")
+    @GetMapping("/approvedPiList")
+    public Result<List<PiInfoVO>> getApprovedPiList() {
+        List<PiInfoVO> list = professionalGroupService.getApprovedPiList();
+        return Result.success(list);
+    }
+
+
+
+    @PostMapping("/shenpi")
     public Result secretaryReview(@RequestParam String userId,/*也是ID,这个ID应该从审批者看到*/
                                   @RequestParam int pi_info_id,
                                   @RequestParam Boolean approve,
@@ -39,6 +46,7 @@ public class UserApprovalController {
         boolean success = approvalService.handleApproval(userId,pi_info_id, approverId, role, approve, comment);
         return success ? Result.success("审批成功") : Result.error("审批失败");
 
-
     }
+
+
 }

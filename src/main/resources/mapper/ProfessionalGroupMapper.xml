@@ -100,4 +100,73 @@
     </insert>
 
 
+
+    <!-- 插入最小 PI 信息 -->
+    <insert id="insertPiInfoMinimal" useGeneratedKeys="true" keyProperty="piInfoId" parameterType="org.example.fuer_xitong.pojo.dto.PiInfoMinimalDTO">
+        INSERT INTO pi_info (id, professional, current_step, apply_status)
+        VALUES (#{id}, #{professional}, 1, 'PENDING_APPROVAL')
+    </insert>
+
+
+
+    <select id="selectLastInsertId" resultType="int">
+        SELECT pi_info_id
+        FROM pi_info
+        WHERE id = #{id}
+        ORDER BY pi_info_id DESC
+            LIMIT 1
+    </select>
+
+
+    <!-- 更新文件路径 -->
+    <update id="updatePiInfoFiles">
+        UPDATE pi_info
+        SET
+        pi_photo_path = #{piPhotoPath},
+        senior_title_certificate_path = #{seniorTitleCertificatePath},
+        senior_title_appointment_path = #{seniorTitleAppointmentPath},
+        signed_resume_path = #{signedResumePath},
+        qualification_certificate_path = #{qualificationCertificatePath},
+        practice_certificate_path = #{practiceCertificatePath},
+        gcp_certificate_path = #{gcpCertificatePath},
+        clinical_participation = #{clinicalParticipation},
+        clinical_reason = #{clinicalReason},
+        clinical_root_path = #{clinicalRootPath},
+        report_file_path = #{selfAssessmentReportPath},  <!-- 新增 -->
+        record_types = #{recordTypes},                               <!-- 新增 -->
+        hospital_areas = #{hospitalAreas}                            <!-- 新增 -->
+        WHERE pi_info_id = #{piInfoId}
+    </update>
+
+
+
+    <select id="getByIdAndProfessionalList" resultType="org.example.fuer_xitong.pojo.vo.PiInfoVO">
+        SELECT
+        pi_info_id,
+        id,
+        professional,
+        pi_photo_path,
+        senior_title_certificate_path,
+        senior_title_appointment_path,
+        signed_resume_path,
+        qualification_certificate_path,
+        practice_certificate_path,
+        gcp_certificate_path,
+        shanchang,
+        clinical_participation,
+        clinical_reason,
+        clinical_root_path,
+        record_types,                <!-- 新增专业组字段 -->
+        hospital_areas,              <!-- 新增专业组字段 -->
+        report_file_path, <!-- 新增专业组字段 -->
+        current_step,
+        apply_status,
+        submit_time
+        FROM pi_info
+        WHERE id = #{id}
+        AND professional = #{professional}
+        ORDER BY pi_info_id ASC
+    </select>
+
+
 </mapper>

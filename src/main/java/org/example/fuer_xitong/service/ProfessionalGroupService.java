@@ -11,5 +11,7 @@ public interface ProfessionalGroupService {
 
     void  addPiInfo(PiInfoDTO dto);
 
-    public List<PiInfoVO> getPendingApprovalList();
+    List<PiInfoVO> getPendingApprovalList();
+
+    List<PiInfoVO> getApprovedPiList();
 }

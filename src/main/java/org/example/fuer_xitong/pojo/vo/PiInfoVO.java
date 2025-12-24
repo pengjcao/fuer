@@ -31,4 +31,18 @@ public class PiInfoVO {
     private Date submitTime;
 
     private int piInfoId;
+
+
+    private String recordTypes;
+
+
+    /**
+     * 专业组涉及院区
+     */
+    private String hospitalAreas;
+
+    /**
+     * 专业组自评报告文件路径
+     */
+    private String reportFilePath;
 }

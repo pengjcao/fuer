@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.PiApprovalLogMapper">
+
+    <!--
+        研究者查看自己的 PI 审批日志
+        按 PI 申请（pi_info_id）+ 审批步骤排序
+    -->
+    <select id="selectLogsByPiId"
+            resultType="org.example.fuer_xitong.pojo.vo.PiApprovalLogVO">
+
+        SELECT
+            pi_info_id     AS piInfoId,
+            pi_id          AS piId,
+            approver_id    AS approverId,
+            role,
+            current_step   AS currentStep,
+            apply_status   AS applyStatus,
+            comment,
+            approve_time   AS approveTime
+        FROM pi_approval_log
+        WHERE pi_id = #{piId}
+        ORDER BY
+            pi_info_id DESC,
+            current_step ASC
+
+    </select>
+
+
+
+    <insert id="insertPiInfoMinimal" useGeneratedKeys="true" keyProperty="pi_info_id">
+        INSERT INTO pi_info (id, professional, current_step, apply_status)
+        VALUES (#{id}, #{professional}, 1, 'PENDING_APPROVAL')
+    </insert>
+
+</mapper>

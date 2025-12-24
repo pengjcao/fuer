@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.fuer_xitong.mapper.InstitutionTeamMemberMapper">
+
+    <insert id="insert">
+        INSERT INTO institution_team_member (
+            institution_member_id,
+            institution_id,
+            name,
+            positions,
+            resume_path,
+            gcp_path,
+            license_path,
+            create_by_id
+        ) VALUES (
+                     #{dto.institutionMemberId},
+                     #{dto.institutionId},
+                     #{dto.name},
+                     #{dto.positions,jdbcType=VARCHAR},
+                     #{resumePath},
+                     #{gcpPath},
+                     #{licensePath},
+                     #{createById}
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE institution_team_member
+        SET
+            name = #{dto.name},
+            positions = #{dto.positions,jdbcType=VARCHAR},
+            resume_path = #{resumePath},
+            gcp_path = #{gcpPath},
+            license_path = #{licensePath},
+            create_by_id = #{createById},
+            update_time = NOW()
+        WHERE institution_member_id = #{dto.institutionMemberId}
+          AND institution_id = #{dto.institutionId}
+    </update>
+
+
+    <delete id="delete">
+        DELETE FROM institution_team_member
+        WHERE institution_member_id = #{institutionMemberId}
+          AND institution_id = #{institutionId}
+    </delete>
+
+    <select id="getByMemberId" resultType="org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO">
+        SELECT institution_member_id,
+               institution_id,
+               name,
+               positions,
+               resume_id,
+               gcp_file_id,
+               license_file_id,
+               create_by_id,
+               create_time
+        FROM institution_team_member
+        WHERE institution_member_id = #{institutionMemberId}
+          AND institution_id = #{institutionId}
+    </select>
+
+    <select id="listByInstitutionId" resultType="org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO">
+        SELECT institution_member_id,
+               institution_id,
+               name,
+               positions,
+               resume_id,
+               gcp_file_id,
+               license_file_id,
+               create_by_id,
+               create_time
+        FROM institution_team_member
+        WHERE institution_id = #{institutionId}
+        ORDER BY create_time DESC
+    </select>
+
+
+
+    <insert id="insertInstitutionTeamMemberMinimal"
+            useGeneratedKeys="true"
+            keyProperty="ziziId">
+        INSERT INTO institution_team_member (
+            institution_member_id,
+            institution_id,
+            name,
+            create_by_id
+        ) VALUES (
+                     #{institutionMemberId},
+                     #{institutionId},
+                     #{name},
+                     #{createById}
+                 )
+    </insert>
+
+
+    <update id="updateInstitutionTeamMemberFiles">
+        UPDATE institution_team_member
+        SET
+            name = #{name},
+            positions = #{positions},
+            resume_path = #{resumePath},
+            gcp_path = #{gcpPath},
+            license_path = #{licensePath},
+            update_time = NOW()
+        WHERE zizi_id = #{ziziId}
+    </update>
+
+
+    <select id="selectAll"
+            resultType="org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO">
+
+        SELECT
+            zizi_id                AS ziziId,
+            institution_member_id  AS institutionMemberId,
+            institution_id         AS institutionId,
+            name,
+            positions              AS positionsStr,
+            resume_path            AS resumePath,
+            gcp_path               AS gcpPath,
+            license_path           AS licensePath,
+            create_by_id           AS createById,
+            create_time            AS createTime
+        FROM institution_team_member
+        ORDER BY create_time DESC
+    </select>
+
+
+
+</mapper>

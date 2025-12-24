@@ -98,7 +98,6 @@ public class UserController {
         return Result.success(users);
     }
 
-
 //    /*这个接口不用管，只是自己测试文件如何存储*/
 //    @PostMapping("/upload")
 //    public Result upload(
@@ -108,11 +107,6 @@ public class UserController {
 //        userservice.upload(file, userId);
 //        return Result.success("上传成功");
 //    }
-
-
-
-
-
 
 
 }

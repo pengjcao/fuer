@@ -22,5 +22,11 @@ public class PiInfoDTO {
     private String clinicalReason;         // 不上传时说明原因
 
     private List<ClinicalMaterialDTO> clinicalMaterials; // 上传的临床材料列表
+
+
+    // ========== 专业组备案 ==========
+    private List<String> recordTypes; // 专业组备案类型
+    private List<String> hospitalAreas; // 专业组涉及院区
+    private MultipartFile selfAssessmentReport; // 自评报告
 }
 
