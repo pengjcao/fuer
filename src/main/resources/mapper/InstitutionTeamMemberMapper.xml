@@ -108,6 +108,12 @@
         WHERE zizi_id = #{ziziId}
     </update>
 
+    <delete id="deleteById">
+        DELETE FROM institution_team_member
+        WHERE zizi_id = #{ziziId}
+    </delete>
+
+
 
     <select id="selectAll"
             resultType="org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO">

@@ -9,6 +9,8 @@ public interface InstitutionTeamMemberService {
     void saveOrUpdate(InstitutionTeamMemberDTO dto);
 
     List<InstitutionTeamMemberVO> listAll();
+
+    void deleteById(Integer ziziId);
 //    void delete(String institutionId, String institutionMemberId);
 //
 //    InstitutionTeamMemberVO get(String institutionId, String institutionMemberId);

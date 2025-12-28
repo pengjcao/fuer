@@ -2,8 +2,7 @@ package org.example.fuer_xitong.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.example.fuer_xitong.pojo.dto.InstitutionTeamMemberDTO;
-import org.example.fuer_xitong.pojo.dto.InstitutionTeamMemberMinimalDTO;
+import org.example.fuer_xitong.pojo.minimal.InstitutionTeamMemberMinimalDTO;
 import org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO;
 
 import java.util.List;
@@ -11,20 +10,9 @@ import java.util.List;
 @Mapper
 public interface InstitutionTeamMemberMapper {
 
-    void insert(@Param("dto") InstitutionTeamMemberDTO dto,
-                @Param("resumePath") String resumePath,
-                @Param("gcpPath") String gcpPath,
-                @Param("licensePath") String licensePath,
-                @Param("createById") String createById);
 
-    void update(@Param("dto") InstitutionTeamMemberDTO dto,
-                @Param("resumePath") String resumePath,
-                @Param("gcpPath") String gcpPath,
-                @Param("licensePath") String licensePath,
-                @Param("createById") String createById);
 
-    void delete(@Param("institutionId") String institutionId,
-                @Param("institutionMemberId") String institutionMemberId);
+
 
     InstitutionTeamMemberVO getByMemberId(@Param("institutionId") String institutionId,
                                           @Param("institutionMemberId") String institutionMemberId);
@@ -47,4 +35,6 @@ public interface InstitutionTeamMemberMapper {
 
     List<InstitutionTeamMemberVO> selectAll();
 
+
+    int deleteById(@Param("ziziId") Integer ziziId);
 }

@@ -3,7 +3,7 @@ package org.example.fuer_xitong.mapper;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.example.fuer_xitong.pojo.dto.PiInfoMinimalDTO;
+import org.example.fuer_xitong.pojo.minimal.PiInfoMinimalDTO;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 
@@ -70,14 +70,21 @@ public interface ProfessionalGroupMapper {
     List<PiInfoVO> selectPendingApprovalVO();
 
 
+//    @Select("""
+//        SELECT *
+//        FROM pi_info
+//        WHERE current_step = 4
+//        ORDER BY submit_time DESC
+//    """)
+//    List<PiInfoVO> selectApprovedPiVO();
+
     @Select("""
         SELECT *
         FROM pi_info
-        WHERE current_step = 5
+        WHERE apply_status = "APPROVE"
         ORDER BY submit_time DESC
     """)
     List<PiInfoVO> selectApprovedPiVO();
-
 
 
     PiInfoVO selectPiinfoById(@Param("id") String id ,@Param("piInfoId") int pi_info_id);

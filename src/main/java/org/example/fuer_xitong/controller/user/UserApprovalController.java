@@ -37,7 +37,7 @@ public class UserApprovalController {
 
 
     @PostMapping("/shenpi")
-    public Result secretaryReview(@RequestParam String userId,/*也是ID,这个ID应该从审批者看到*/
+    public Result Review(@RequestParam String userId,/*也是ID,这个ID应该从审批者看到*/
                                   @RequestParam int pi_info_id,
                                   @RequestParam Boolean approve,
                                   @RequestParam(required = false) String comment) {
@@ -47,6 +47,8 @@ public class UserApprovalController {
         return success ? Result.success("审批成功") : Result.error("审批失败");
 
     }
+
+
 
 
 }

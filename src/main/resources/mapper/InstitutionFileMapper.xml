@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.InstitutionFileMapper">
+
+    <!-- ================== 1. minimal insert ================== -->
+    <insert id="insertInstitutionFileMinimal"
+            useGeneratedKeys="true"
+            keyProperty="institutionFileId">
+
+        INSERT INTO institution_file
+        (
+            institution_id,
+            created_by
+        )
+        VALUES
+            (
+                #{institutionId},
+                #{createdBy}
+            )
+    </insert>
+
+    <!-- ================== 2. 回写文件路径 ================== -->
+    <update id="updateInstitutionFilePaths">
+
+        UPDATE institution_file
+        SET
+            trial_management_path   = #{trialManagementPath},
+            standard_operation_path = #{standardOperationPath},
+            emergency_plan_path     = #{emergencyPlanPath},
+
+            training_plan_path      = #{trainingPlanPath},
+            quality_plan_path       = #{qualityPlanPath},
+
+            other_file_path         = #{otherFilePath}
+
+        WHERE institution_file_id = #{institutionFileId}
+    </update>
+
+</mapper>

@@ -3,10 +3,9 @@ package org.example.fuer_xitong.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.example.fuer_xitong.mapper.InstitutionTeamMemberMapper;
 import org.example.fuer_xitong.pojo.dto.InstitutionTeamMemberDTO;
-import org.example.fuer_xitong.pojo.dto.InstitutionTeamMemberMinimalDTO;
+import org.example.fuer_xitong.pojo.minimal.InstitutionTeamMemberMinimalDTO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO;
-import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 import org.example.fuer_xitong.service.InstitutionTeamMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,6 +94,21 @@ public class InstitutionTeamMemberServiceImpl implements InstitutionTeamMemberSe
         }
 
         return list;
+    }
+
+
+    @Override
+    public void deleteById(Integer ziziId) {
+
+        if (ziziId == null) {
+            throw new IllegalArgumentException("ziziId 不能为空");
+        }
+
+        int rows = institutionTeamMemberMapper.deleteById(ziziId);
+
+        if (rows == 0) {
+            throw new RuntimeException("删除失败：记录不存在");
+        }
     }
 
     private InstitutionTeamMemberVO  convertFilePaths(InstitutionTeamMemberVO  vo) {

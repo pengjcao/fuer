@@ -3,7 +3,7 @@ package org.example.fuer_xitong.service.impl;
 import org.example.fuer_xitong.mapper.ProfessionalGroupMapper;
 import org.example.fuer_xitong.pojo.dto.ClinicalMaterialDTO;
 import org.example.fuer_xitong.pojo.dto.PiInfoDTO;
-import org.example.fuer_xitong.pojo.dto.PiInfoMinimalDTO;
+import org.example.fuer_xitong.pojo.minimal.PiInfoMinimalDTO;
 import org.example.fuer_xitong.pojo.dto.ProfessionalGroupAddDTO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;

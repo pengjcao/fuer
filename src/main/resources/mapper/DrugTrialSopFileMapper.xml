@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.DrugTrialSopFileMapper">
+
+    <!-- 插入 minimal 数据，回填自增主键 -->
+    <insert id="insertMinimal"
+            parameterType="org.example.fuer_xitong.pojo.minimal.DrugTrialSopFileMinimalDTO"
+            useGeneratedKeys="true"
+            keyProperty="institutionDrugTrialSopFileId">
+
+        INSERT INTO institution_drug_trial_sop_file
+        (
+            institution_id,
+            institution_file_id,
+            created_by,
+            is_invalid
+        )
+        VALUES
+            (
+                #{institutionId},
+                #{institutionFileId},
+                #{createdBy},
+                0
+            )
+    </insert>
+
+    <!-- 作废旧记录 -->
+    <update id="invalidateCurrent">
+        UPDATE institution_drug_trial_sop_file
+        SET is_invalid = 1
+        WHERE institution_file_id = #{institutionFileId}
+          AND is_invalid = 0
+    </update>
+
+    <!-- 更新当前这条记录的 file_path -->
+    <update id="updateCurrentById">
+        UPDATE institution_drug_trial_sop_file
+        SET file_path = #{filePath}
+        WHERE institution_drug_trial_sop_file_id = #{id}
+    </update>
+
+</mapper>

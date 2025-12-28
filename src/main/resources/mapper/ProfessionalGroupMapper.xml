@@ -102,7 +102,7 @@
 
 
     <!-- 插入最小 PI 信息 -->
-    <insert id="insertPiInfoMinimal" useGeneratedKeys="true" keyProperty="piInfoId" parameterType="org.example.fuer_xitong.pojo.dto.PiInfoMinimalDTO">
+    <insert id="insertPiInfoMinimal" useGeneratedKeys="true" keyProperty="piInfoId" parameterType="org.example.fuer_xitong.pojo.minimal.PiInfoMinimalDTO">
         INSERT INTO pi_info (id, professional, current_step, apply_status)
         VALUES (#{id}, #{professional}, 1, 'PENDING_APPROVAL')
     </insert>

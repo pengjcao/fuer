@@ -1,4 +1,4 @@
-package org.example.fuer_xitong.pojo.dto;
+package org.example.fuer_xitong.pojo.minimal;
 
 import lombok.Data;
 

@@ -1,8 +1,10 @@
 package org.example.fuer_xitong.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import org.example.fuer_xitong.pojo.dto.InstitutionFileDTO;
 import org.example.fuer_xitong.pojo.dto.InstitutionTeamMemberDTO;
 import org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO;
+import org.example.fuer_xitong.service.InstitutionFileService;
 import org.example.fuer_xitong.service.InstitutionTeamMemberService;
 import org.example.fuer_xitong.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import java.util.List;
 public class InstitutionTeamMemberController {
     @Autowired
     private InstitutionTeamMemberService institutionTeamMemberService;
+
 
     @PostMapping(
             value = "/save",
@@ -34,4 +37,16 @@ public class InstitutionTeamMemberController {
                 institutionTeamMemberService.listAll();
         return Result.success(list);
     }
+
+
+    /**
+     * 根据 ziziId 删除机构成员
+     */
+    @DeleteMapping("/delete/{ziziId}")
+    public Result delete(@PathVariable Integer ziziId) {
+        institutionTeamMemberService.deleteById(ziziId);
+        return Result.success("删除成功");
+    }
+
+
 }
