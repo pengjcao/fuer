@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.InstitutionSystemFileHistoryMapper">
+
+    <insert id="insertHistory"
+            parameterType="org.example.fuer_xitong.pojo.dto.InstitutionSystemFileHistoryDTO">
+        INSERT INTO institution_system_file_history (
+            file_id,
+            system_id,
+            file_name,
+            file_path,
+            operated_by,
+            remark,
+            created_time
+        ) VALUES (
+                     #{fileId},
+                     #{systemId},
+                     #{fileName},
+                     #{filePath},
+                     #{operatedBy},
+                     #{remark},
+                     NOW()
+                 )
+    </insert>
+
+
+
+    <select id="selectByFileId"
+            parameterType="long"
+            resultType="org.example.fuer_xitong.pojo.vo.InstitutionSystemFileHistoryVO">
+        SELECT
+            id,
+            file_name AS fileName,
+            file_path AS currentPath,
+            operated_by AS operatedBy,
+            remark,
+            created_time AS createdTime
+        FROM institution_system_file_history
+        WHERE file_id = #{fileId}
+        ORDER BY created_time DESC
+    </select>
+
+
+    <!-- ================== 删除某个文件体系下的所有文件 ================== -->
+    <delete id="deleteBySystemId">
+        DELETE FROM institution_system_file
+        WHERE system_id = #{systemId}
+    </delete>
+
+    <!-- ================== 根据 file_id 删除历史记录 ================== -->
+    <delete id="deleteByFileId">
+        DELETE FROM institution_system_file_history
+        WHERE file_id = #{fileId}
+    </delete>
+
+</mapper>

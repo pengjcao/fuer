@@ -5,7 +5,6 @@ import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
 import org.example.fuer_xitong.pojo.vo.PiApprovalProgressVO;
 import org.example.fuer_xitong.service.ApprovalLogService;
-import org.example.fuer_xitong.service.ProfessionalGroupService;
 import org.example.fuer_xitong.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

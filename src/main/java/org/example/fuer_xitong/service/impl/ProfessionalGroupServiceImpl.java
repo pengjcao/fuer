@@ -1,5 +1,6 @@
 package org.example.fuer_xitong.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.fuer_xitong.mapper.ProfessionalGroupMapper;
 import org.example.fuer_xitong.pojo.dto.ClinicalMaterialDTO;
 import org.example.fuer_xitong.pojo.dto.PiInfoDTO;
@@ -10,12 +11,15 @@ import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 import org.example.fuer_xitong.service.ProfessionalGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -40,6 +44,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
                 filePath);
     }
 
+    @Transactional
     @Override
     public void addPiInfo(PiInfoDTO dto) {
         String id = BaseContext.getCurrentId();
@@ -49,6 +54,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         PiInfoMinimalDTO minimalDTO = new PiInfoMinimalDTO();
         minimalDTO.setId(id);
         minimalDTO.setProfessional(dto.getProfessional());
+        minimalDTO.setApplyType(dto.getApplyType());
 
         // recordTypes / hospitalAreas 逗号拼接
         String recordTypesStr = dto.getRecordTypes() != null ? String.join(",", dto.getRecordTypes()) : null;
@@ -150,6 +156,51 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         return result;
     }
 
+
+
+    @Override
+    public Map<String, List<PiInfoVO>> groupByProfessional(List<PiInfoVO> piList) {
+
+        if (CollectionUtils.isEmpty(piList)) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, List<PiInfoVO>> result = new LinkedHashMap<>();
+
+        for (PiInfoVO pi : piList) {
+            String group = pi.getProfessional();
+            if (group == null) continue;
+
+            result.computeIfAbsent(group, k -> new ArrayList<>()).add(pi);
+        }
+
+        return result;
+    }
+
+
+
+
+    @Override
+    public void fillDrugAdminRecordTime(Integer piInfoId, LocalDateTime recordTime) {
+
+
+        // 1. 查询当前审批步骤
+        PiInfoVO pi = professionalGroupMapper.selectPiinfoById(piInfoId);
+
+        pi.setApplyStatus("APPROVE");
+        Integer  currentStep=pi.getCurrentStep();
+        if (currentStep == null) {
+            throw new RuntimeException("PI 信息不存在");
+        }
+
+        // 2. 校验：必须是机构主任已完成审批（step = 4）
+        if (currentStep != 4) {
+            throw new RuntimeException("当前审批流程未完成，不能填写药监局备案时间");
+        }
+
+        // 3. 填写备案时间
+        professionalGroupMapper.updateDrugAdminRecordTime(piInfoId, recordTime);
+    }
 
 
 

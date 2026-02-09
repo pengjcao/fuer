@@ -1,14 +1,17 @@
 package org.example.fuer_xitong.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.example.fuer_xitong.pojo.minimal.PiInfoMinimalDTO;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
+import org.example.fuer_xitong.pojo.vo.PiInfoHistoryVO;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+@Mapper
 public interface ProfessionalGroupMapper {
     @Insert("INSERT INTO professional_group(id,record_types, record_names, hospital_areas, report_file_path) " +
             "VALUES(#{Id},#{recordTypes}, #{recordNames}, #{hospitalAreas}, #{filePath})")
@@ -70,24 +73,24 @@ public interface ProfessionalGroupMapper {
     List<PiInfoVO> selectPendingApprovalVO();
 
 
-//    @Select("""
-//        SELECT *
-//        FROM pi_info
-//        WHERE current_step = 4
-//        ORDER BY submit_time DESC
-//    """)
-//    List<PiInfoVO> selectApprovedPiVO();
-
     @Select("""
         SELECT *
         FROM pi_info
-        WHERE apply_status = "APPROVE"
+        WHERE current_step = 4 AND drug_admin_record_time IS NOT NULL
         ORDER BY submit_time DESC
     """)
     List<PiInfoVO> selectApprovedPiVO();
 
+//    @Select("""
+//        SELECT *
+//        FROM pi_info
+//        WHERE apply_status = "APPROVE"
+//        ORDER BY submit_time DESC
+//    """)
+//    List<PiInfoVO> selectApprovedPiVO();
 
-    PiInfoVO selectPiinfoById(@Param("id") String id ,@Param("piInfoId") int pi_info_id);
+
+    PiInfoVO selectPiinfoById(@Param("piInfoId") int pi_info_id);
 
 
     int updatePiInfo(PiInfoVO pi);
@@ -103,5 +106,38 @@ public interface ProfessionalGroupMapper {
 
 
 
+    /**
+     * 填写 / 更新 药监局备案时间
+     *
+     * @param piInfoId PI 信息表主键
+     * @param recordTime 药监局备案时间（前端传）
+     * @return 受影响行数
+     */
+    @Update("""
+        UPDATE pi_info
+        SET drug_admin_record_time = #{recordTime}
+        WHERE pi_info_id = #{piInfoId}
+    """)
+    int updateDrugAdminRecordTime(
+            @Param("piInfoId") Integer piInfoId,
+            @Param("recordTime") LocalDateTime recordTime
+    );
+
+    /**
+     * 根据 piInfoId 查询当前审批步骤
+     *
+     * @param piInfoId PI 信息表主键
+     * @return 当前步骤
+     */
+    @Select("""
+        SELECT current_step
+        FROM pi_info
+        WHERE pi_info_id = #{piInfoId}
+    """)
+    Integer selectCurrentStep(@Param("piInfoId") Integer piInfoId);
+
+
+
+    PiInfoHistoryVO selectHistoryById(@Param("piInfoId") int piInfoId);
 
 }

@@ -8,9 +8,12 @@ import org.example.fuer_xitong.service.impl.ProfessionalGroupServiceImpl;
 import org.example.fuer_xitong.service.impl.UserServiceImpl;
 import org.example.fuer_xitong.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -35,6 +38,36 @@ public class UserApprovalController {
     }
 
 
+    @GetMapping("/approvedPiListGroup")
+    public Result<Map<String, List<PiInfoVO>>> getApprovedPiListGroup() {
+        // 1️⃣ 查询审批完成的 PI 列表
+        List<PiInfoVO> list = professionalGroupService.getApprovedPiList();
+
+        // 2️⃣ 调用 Service 分组
+        Map<String, List<PiInfoVO>> groupedResult =
+                professionalGroupService.groupByProfessional(list);
+
+        return Result.success(groupedResult);
+    }
+
+
+
+    @PostMapping("/drug-admin-record-time")
+    public Result fillDrugAdminRecordTime(
+            @RequestParam int piInfoId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime recordTime
+    ) {
+        int role =BaseContext.getCurrentRole();
+        // 1. 权限校验：只能机构办秘书
+        if (role != 2 ) {
+            return Result.error("只有机构办秘书才能填写药监局备案时间");
+        }
+
+
+        professionalGroupService.fillDrugAdminRecordTime(piInfoId, recordTime);
+        return Result.success("药监局备案时间填写成功");
+    }
+
 
     @PostMapping("/shenpi")
     public Result Review(@RequestParam String userId,/*也是ID,这个ID应该从审批者看到*/
@@ -47,6 +80,9 @@ public class UserApprovalController {
         return success ? Result.success("审批成功") : Result.error("审批失败");
 
     }
+
+
+
 
 
 

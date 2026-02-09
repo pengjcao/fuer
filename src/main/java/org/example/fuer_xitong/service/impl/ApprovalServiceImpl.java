@@ -1,5 +1,6 @@
 package org.example.fuer_xitong.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.fuer_xitong.mapper.ProfessionalGroupMapper;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
@@ -15,10 +16,11 @@ public class ApprovalServiceImpl implements ApprovalService {
     @Autowired
     private ProfessionalGroupMapper professionalGroupMapper;
 
+    @Transactional
     public boolean handleApproval(String piId, int pi_info_id, String approverId, Integer role, Boolean approve, String comment)
     {
         // 1. 查询数据库最新 PI 信息，保证安全
-        PiInfoVO pi = professionalGroupMapper.selectPiinfoById(piId,pi_info_id);
+        PiInfoVO pi = professionalGroupMapper.selectPiinfoById(pi_info_id);
         if (pi == null) return false;
 
         // 2. 权限校验：当前审批者角色必须等于数据库里的 current_step
@@ -29,10 +31,10 @@ public class ApprovalServiceImpl implements ApprovalService {
         // 3. 审批逻辑
         if (approve) {
             // 审批通过
-            if (pi.getCurrentStep() == 4) {
+            if (pi.getCurrentStep()+1 == 4) {
                 // 流程完成
                 pi.setCurrentStep(4);
-                pi.setApplyStatus("APPROVE");
+//                pi.setApplyStatus("APPROVE");
             } else {
                 // 推进下一步
                 pi.setCurrentStep(pi.getCurrentStep() + 1);
@@ -43,6 +45,8 @@ public class ApprovalServiceImpl implements ApprovalService {
             pi.setCurrentStep(0); // 重置
             pi.setApplyStatus("REJECT");
         }
+
+
 
 
         // 4. 更新 PI 信息表（只更新状态和步骤）

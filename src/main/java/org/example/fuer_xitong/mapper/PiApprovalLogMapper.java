@@ -1,10 +1,11 @@
 package org.example.fuer_xitong.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
 
 import java.util.List;
-
+@Mapper
 public interface PiApprovalLogMapper {
 
     /**

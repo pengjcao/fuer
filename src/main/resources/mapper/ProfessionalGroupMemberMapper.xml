@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.ProfessionalGroupMemberMapper">
+
+    <insert id="insertMember">
+        INSERT INTO professional_group_member (
+            department_id,
+            keshi,
+            group_path,
+            person_type,
+            name,
+            roles,
+            resume_text,
+            resume_file_path,
+            gcp_cert_path,
+            practice_cert_path,
+            create_by,
+            create_time
+        ) VALUES (
+                     #{departmentId},
+                     #{keshi},
+                     #{groupPath},
+                     #{personType},
+                     #{name},
+                     #{roles},
+                     #{resumeText},
+                     #{resumeFilePath},
+                     #{gcpCertPath},
+                     #{practiceCertPath},
+                     #{createBy},
+                     NOW()
+                 )
+    </insert>
+
+
+
+    <select id="selectByDepartmentAndGroup"
+            resultType="org.example.fuer_xitong.pojo.vo.ProfessionalGroupMemberVO">
+
+        SELECT
+            id,
+            department_id      AS departmentId,
+            keshi,
+            group_path         AS groupPath,
+            person_type        AS personType,
+            name,
+            roles,
+            resume_text        AS resumeText,
+            resume_file_path   AS resumeFileUrl,
+            gcp_cert_path      AS gcpCertUrl,
+            practice_cert_path AS practiceCertUrl,
+            create_by          AS createBy,
+            create_time        AS createTime
+        FROM professional_group_member
+        WHERE department_id = #{departmentId}
+          AND group_path = #{groupPath}
+        ORDER BY create_time DESC
+
+    </select>
+
+
+</mapper>

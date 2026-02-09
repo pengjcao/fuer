@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.DepartmentProfessionalGroupMapper">
+
+    <select id="countByDeptAndPath" resultType="int">
+        SELECT COUNT(1)
+        FROM department_professional_group
+        WHERE department_id = #{departmentId}
+        AND group_path = #{groupPath}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO department_professional_group
+        (
+        department_id,
+        keshi,
+        group_path,
+        create_by
+        )
+        VALUES
+        (
+        #{departmentId},
+        #{keshi},
+        #{groupPath},
+        #{createBy}
+        )
+    </insert>
+
+</mapper>

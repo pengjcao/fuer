@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.SystemNoticeMapper">
+
+    <!-- 查询所有通知（未删除，按时间倒序，且未指定分组） -->
+    <select id="selectAll" resultType="org.example.fuer_xitong.pojo.vo.SystemNoticeVO">
+        SELECT
+        notice_id        AS noticeId,
+        title,
+        content,
+        attachment_paths AS attachmentPaths,
+        publisher_id     AS publisherId,
+        publisher_role   AS publisherRole,
+        create_time      AS createTime
+        FROM system_notice
+        WHERE is_deleted = 0
+        AND group_ids IS NULL        <!-- 只取未分组通知 -->
+        ORDER BY create_time DESC
+    </select>
+
+
+
+
+    <!-- 查询当前用户所属分组可见的通知 -->
+
+    <select id="selectByUserGroups"
+            resultType="org.example.fuer_xitong.pojo.vo.SystemNoticeVO"
+            parameterType="string">
+        SELECT
+            n.notice_id AS noticeId,
+            n.title,
+            n.content,
+            n.attachment_paths AS attachmentPaths,
+            n.publisher_id AS publisherId,
+            n.publisher_role AS publisherRole,
+            n.create_time AS createTime
+        FROM system_notice n
+                 JOIN notice_group_user ngu
+                      ON JSON_CONTAINS(n.group_ids, CAST(ngu.group_id AS JSON))
+        WHERE ngu.user_id = #{userId}
+          AND n.is_deleted = 0
+        ORDER BY n.create_time DESC
+    </select>
+</mapper>

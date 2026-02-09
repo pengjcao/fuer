@@ -23,6 +23,18 @@ public class InstitutionFileController {
 
     @Autowired
     private InstitutionFileService institutionFileService;
+
+
+
+
+
+
+
+
+
+
+
+
     @PostMapping(
             value = "/filesaveall",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -31,7 +43,6 @@ public class InstitutionFileController {
         institutionFileService.saveOrUpdate(dto);
         return Result.success();
     }
-
 
     /**
      * 查询机构制度文件记录（表中只有一条）
@@ -69,7 +80,7 @@ public class InstitutionFileController {
         return Result.success(list);
     }
 
-
+    
     /**
      * 上传【药物临床试验标准操作规程（SOP）】
      */
@@ -83,6 +94,23 @@ public class InstitutionFileController {
         institutionFileService.uploadDrugTrialSopFile(file);
         return Result.success("上传成功");
     }
+
+
+
+
+
+//    @GetMapping("/drugTrialSop/history")
+//    public Result<List<InstitutionTrialManagementFileVO>> listTrialManagementHistory(
+//
+//    ) {
+//        int institutionFileId=1;
+//        List<InstitutionTrialManagementFileVO> list =
+//                institutionFileService.listTrialManagementHistory(institutionFileId);
+//        return Result.success(list);
+//    }
+
+
+
 
 
 }

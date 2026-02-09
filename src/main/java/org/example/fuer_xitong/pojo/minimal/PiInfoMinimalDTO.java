@@ -7,6 +7,12 @@ public class PiInfoMinimalDTO {
     private String id;               // 研究者工号
     private String professional;     // 专业
     private Integer piInfoId;        // 用于接收自增主键
+    /**
+     * 申请类型：
+     * 0 - 新增 PI
+     * 1 - 新增专业组
+     */
+    private Integer applyType;
 
 
 

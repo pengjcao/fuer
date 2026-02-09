@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.DepartmentMapper">
+    <insert id="insertDepartment">
+        INSERT INTO department
+            (keshi, professional_group, pi_id, create_by)
+        VALUES
+            (#{dto.keshi},
+             #{dto.professionalGroup},
+             #{dto.piId},
+             #{createBy})
+    </insert>
+
+
+
+    <select id="selectAll" resultType="org.example.fuer_xitong.pojo.vo.DepartmentVO">
+        SELECT
+            id,
+            keshi,
+            professional_group AS professionalGroup,
+            pi_id AS piId
+        FROM department
+        ORDER BY keshi, professional_group
+    </select>
+
+
+    <!-- 研究者可见科室 -->
+    <select id="selectByKeshiAndId" resultType="org.example.fuer_xitong.pojo.vo.DepartmentVO">
+        SELECT
+        id,
+        keshi,
+        professional_group AS professionalGroup,
+        pi_id AS piId
+        FROM department
+        WHERE keshi = #{keshi}
+         <!-- 只有管理员/审批者创建的记录才返回 -->
+        ORDER BY professional_group
+    </select>
+
+
+    <select id="selectByDepartmentId"
+            resultType="org.example.fuer_xitong.pojo.vo.DeptProfessionalGroupVO">
+
+        SELECT
+            id,
+            department_id AS departmentId,
+            keshi,
+            group_path AS groupPath
+        FROM department_professional_group
+        WHERE department_id = #{departmentId}
+        ORDER BY group_path
+
+    </select>
+
+</mapper>

@@ -24,4 +24,5 @@ public interface UserMapper {
     @Select("SELECT role FROM user WHERE ID = #{id}")
     Integer getRoleBy(@Param("id") String id);
 
+    String selectKeshiByJobNumber(@Param("jobNumber") String jobNumber);
 }
