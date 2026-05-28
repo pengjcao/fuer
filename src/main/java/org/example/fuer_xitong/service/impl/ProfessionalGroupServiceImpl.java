@@ -10,6 +10,7 @@ import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 import org.example.fuer_xitong.service.ProfessionalGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -24,7 +25,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
-
+    @Value("${file.upload-path}")
+    private String uploadPath;
+    @Value("${file.base-url}")
+    private String baseUrl;
     @Autowired
     private ProfessionalGroupMapper professionalGroupMapper;
 
@@ -56,6 +60,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         minimalDTO.setProfessional(dto.getProfessional());
         minimalDTO.setApplyType(dto.getApplyType());
 
+
         // recordTypes / hospitalAreas 逗号拼接
         String recordTypesStr = dto.getRecordTypes() != null ? String.join(",", dto.getRecordTypes()) : null;
         String hospitalAreasStr = dto.getHospitalAreas() != null ? String.join(",", dto.getHospitalAreas()) : null;
@@ -71,7 +76,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         }
 
         // ================== 2. 构建统一 PI 文件存储路径 ==================
-        String baseDir = "D:/yan/upload/Pi/" + id + "/" + piInfoId + "/";
+        String baseDir = uploadPath+"upload/Pi/" + id + "/" + piInfoId + "/";
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) baseFolder.mkdirs();
 
@@ -218,9 +223,15 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
     /**
      * 磁盘路径 -> 前端可访问 URL
      */
+//    private String toFileUrl(String dbPath) {
+//        if (dbPath == null || dbPath.isEmpty()) return null;
+//        return "http://localhost:8080/files/" + dbPath.replace("upload/", "");
+//    }
     private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) return null;
-        return "http://localhost:8080/files/" + dbPath.replace("D:/yan/upload/", "");
+        if (dbPath == null || dbPath.isEmpty()) {
+            return null;
+        }
+        return baseUrl + "/files/" + dbPath;
     }
 
     /**

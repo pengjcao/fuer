@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.SiteFacilityMapper">
+
+    <insert id="insertReceptionRoom"
+            useGeneratedKeys="true"
+            keyProperty="dto.id"
+            keyColumn="id">
+        INSERT INTO facility_reception_room
+        (
+            keshi,
+            campus,
+            location,
+            photo,
+            can_meet_need,
+            create_by
+        )
+        VALUES
+            (
+                #{dto.keshi},
+                #{dto.campus},
+                #{dto.location},
+                #{photoPath},
+                #{dto.canMeetNeed},
+                #{createBy}
+            )
+    </insert>
+
+    <select id="selectReceptionRoomByKeshi"
+            resultType="org.example.fuer_xitong.pojo.vo.FacilityReceptionRoomVO">
+        SELECT
+            keshi,
+            campus,
+            location,
+            photo,
+            can_meet_need AS canMeetNeed,
+            create_by AS createBy
+        FROM facility_reception_room
+        WHERE keshi = #{keshi}
+
+    </select>
+
+    <update id="updateReceptionRoomPhoto">
+        update facility_reception_room
+        set photo = #{photoPath}
+        where id = #{id}
+    </update>
+
+
+    <insert id="insertManagementRoom"
+            useGeneratedKeys="true"
+            keyProperty="dto.id"
+            keyColumn="id">
+        INSERT INTO facility_management_room
+        (
+            keshi,
+            campus,
+            location,
+            photo,
+            has_temp_humidity_record,
+            has_access_record,
+            has_file_borrow_record,
+            has_protection_condition,
+            create_by
+        )
+        VALUES
+            (
+                #{dto.keshi},
+                #{dto.campus},
+                #{dto.location},
+                #{photoPath},
+                #{dto.hasTempHumidityRecord},
+                #{dto.hasAccessRecord},
+                #{dto.hasFileBorrowRecord},
+                #{dto.hasProtectionCondition},
+                #{createBy}
+            )
+    </insert>
+
+    <!-- 根据科室查询资料管理室信息 -->
+    <select id="selectManagementRoomByKeshi" resultType="org.example.fuer_xitong.pojo.vo.FacilityManagementRoomVO">
+        SELECT
+            id,
+            keshi,
+            campus,
+            location,
+            photo,
+            has_temp_humidity_record AS hasTempHumidityRecord,
+            has_access_record AS hasAccessRecord,
+            has_file_borrow_record AS hasFileBorrowRecord,
+            has_protection_condition AS hasProtectionCondition,
+            create_by AS createBy,
+            create_time AS createTime
+        FROM facility_management_room
+        WHERE keshi = #{keshi}
+    </select>
+
+    <update id="updateManagementRoomPhoto">
+        UPDATE facility_management_room
+        SET photo = #{photoPath}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertDrugStorageRoom"
+            useGeneratedKeys="true"
+            keyProperty="dto.id"
+            keyColumn="id">
+        INSERT INTO facility_drug_storage_room
+        (
+            keshi,
+            has_storage_room,
+            campus,
+            location,
+            photo,
+            has_fridge,
+            has_access_record,
+            has_temp_humidity_record,
+            has_fridge_account,
+            has_maintenance_record,
+            create_by
+        )
+        VALUES
+            (
+                #{dto.keshi},
+                #{dto.hasStorageRoom},
+                #{dto.campus},
+                #{dto.location},
+                #{photoPath},
+                #{dto.hasFridge},
+                #{dto.hasAccessRecord},
+                #{dto.hasTempHumidityRecord},
+                #{dto.hasFridgeAccount},
+                #{dto.hasMaintenanceRecord},
+                #{createBy}
+            )
+    </insert>
+
+    <select id="selectDrugStorageRoomByKeshi" resultType="org.example.fuer_xitong.pojo.vo.FacilityDrugStorageRoomVO">
+        SELECT id, keshi, has_storage_room, campus, location, photo,
+               has_fridge, has_access_record, has_temp_humidity_record,
+               has_fridge_account, has_maintenance_record,
+               create_by, create_time, update_by, update_time
+        FROM facility_drug_storage_room
+        WHERE keshi = #{keshi}
+    </select>
+
+    <update id="updateDrugStorageRoomPhoto">
+        UPDATE facility_drug_storage_room
+        SET photo = #{photoPath}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertEquipmentStorageRoom"
+            useGeneratedKeys="true"
+            keyProperty="dto.id"
+            keyColumn="id">
+        INSERT INTO facility_equipment_storage_room
+        (
+            keshi,
+            campus,
+            location,
+            photo,
+            has_storage_room,
+            has_fridge,
+            has_access_record,
+            has_temp_humidity_record,
+            has_fridge_account,
+            has_maintenance_record,
+            create_by
+        )
+        VALUES
+            (
+                #{dto.keshi},
+                #{dto.campus},
+                #{dto.location},
+                #{photoPath},
+                #{dto.hasStorageRoom},
+                #{dto.hasFridge},
+                #{dto.hasAccessRecord},
+                #{dto.hasTempHumidityRecord},
+                #{dto.hasFridgeAccount},
+                #{dto.hasMaintenanceRecord},
+                #{createBy}
+            )
+    </insert>
+
+    <select id="selectEquipmentStorageRoomByKeshi" resultType="org.example.fuer_xitong.pojo.vo.FacilityEquipmentStorageRoomVO">
+        SELECT id, keshi, has_storage_room, campus, location, photo,
+               has_fridge, has_access_record, has_temp_humidity_record,
+               has_fridge_account, has_maintenance_record,
+               create_by, create_time, update_by, update_time
+        FROM facility_equipment_storage_room
+        WHERE keshi = #{keshi}
+    </select>
+
+    <update id="updateEquipmentStorageRoomPhoto">
+        UPDATE facility_equipment_storage_room
+        SET photo = #{photoPath}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertSampleStorageRoom"
+            useGeneratedKeys="true"
+            keyProperty="dto.id"
+            keyColumn="id">
+        INSERT INTO facility_sample_storage_room
+        (
+            keshi,
+            campus,
+            location,
+            photo,
+            has_sample_fridge,
+            has_access_record,
+            has_temp_humidity_record,
+            has_maintenance_record,
+            create_by
+        )
+        VALUES
+            (
+                #{dto.keshi},
+                #{dto.campus},
+                #{dto.location},
+                #{photoPath},
+                #{dto.hasSampleFridge},
+                #{dto.hasAccessRecord},
+                #{dto.hasTempHumidityRecord},
+                #{dto.hasMaintenanceRecord},
+                #{createBy}
+            )
+    </insert>
+
+    <select id="selectSampleStorageRoomByKeshi" resultType="org.example.fuer_xitong.pojo.vo.FacilitySampleStorageRoomVO">
+        SELECT id, keshi, campus, location, photo,
+               has_sample_fridge, has_access_record, has_temp_humidity_record, has_maintenance_record,
+               create_by, create_time, update_by, update_time
+        FROM facility_sample_storage_room
+        WHERE keshi = #{keshi}
+    </select>
+
+    <update id="updateSampleStorageRoomPhoto">
+        UPDATE facility_sample_storage_room
+        SET photo = #{photoPath}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertEmergencyEquipment">
+        INSERT INTO facility_emergency_equipment
+            (keshi, has_emergency_equipment, create_by, create_time)
+        VALUES
+            (#{dto.keshi}, #{dto.hasEmergencyEquipment}, #{createBy}, NOW())
+    </insert>
+
+    <select id="selectEmergencyEquipmentByKeshi" resultType="org.example.fuer_xitong.pojo.vo.FacilityEmergencyEquipmentVO">
+        SELECT id, keshi, has_emergency_equipment,
+               create_by, create_time, update_by, update_time
+        FROM facility_emergency_equipment
+        WHERE keshi = #{keshi}
+    </select>
+</mapper>

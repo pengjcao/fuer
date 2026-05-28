@@ -5,6 +5,7 @@ import org.example.fuer_xitong.pojo.dto.NoticeGroupCreateDTO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.service.NoticeGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,8 @@ import java.util.Map;
 
 @Service
 public class NoticeGroupServiceImpl implements NoticeGroupService {
-
+    @Value("${file.base-url}")
+    private String baseUrl;
     @Autowired
     private NoticeGroupMapper noticeGroupMapper;
 

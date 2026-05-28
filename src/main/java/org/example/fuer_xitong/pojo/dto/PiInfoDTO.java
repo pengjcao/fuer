@@ -9,11 +9,7 @@ import java.util.List;
 public class PiInfoDTO {
     private String Id;
     private String professional;
-    /**
-     * 申请类型：
-     * 0 - 新增 PI
-     * 1 - 新增专业组
-     */
+
     private Integer applyType;
     private MultipartFile piPhoto;
     private MultipartFile seniorTitleCertificate;

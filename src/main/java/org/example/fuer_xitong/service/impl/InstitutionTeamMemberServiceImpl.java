@@ -8,6 +8,7 @@ import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO;
 import org.example.fuer_xitong.service.InstitutionTeamMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class InstitutionTeamMemberServiceImpl implements InstitutionTeamMemberService {
-
+    @Value("${file.upload-path}")
+    private String uploadPath;
+    @Value("${file.base-url}")
+    private String baseUrl;
     @Autowired
     private InstitutionTeamMemberMapper institutionTeamMemberMapper;
 
@@ -42,7 +46,7 @@ public class InstitutionTeamMemberServiceImpl implements InstitutionTeamMemberSe
         }
 
         // ================== 2. 构建统一文件存储路径 ==================
-        String baseDir = "D:/yan/upload/InstitutionTeamMember/"
+        String baseDir = uploadPath+"upload/InstitutionTeamMember/"
                 + dto.getInstitutionId() + "/"
                 + dto.getInstitutionMemberId() + "/"
                 + ziziId + "/";
@@ -119,10 +123,16 @@ public class InstitutionTeamMemberServiceImpl implements InstitutionTeamMemberSe
         return vo;
     }
 
-    private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) return null;
-        return "http://localhost:8080/files/" + dbPath.replace("D:/yan/upload/", "");
+//    private String toFileUrl(String dbPath) {
+//        if (dbPath == null || dbPath.isEmpty()) return null;
+//        return "http://localhost:8080/files/" + dbPath.replace("yan/upload/", "");
+//    }
+private String toFileUrl(String dbPath) {
+    if (dbPath == null || dbPath.isEmpty()) {
+        return null;
     }
+    return baseUrl + "/files/" + dbPath;
+}
 
     /**
      * 从磁盘路径获取文件名

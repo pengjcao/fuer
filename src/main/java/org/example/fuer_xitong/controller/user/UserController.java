@@ -50,11 +50,7 @@ public class UserController {
                 jwtProperties.getUserTtl(),
                 claims);
         log.info("--------------{}",jwtProperties.getUserTokenName());
-//        UserLoginVO userLoginVO=UserLoginVO.builder().id(user.getID())
-//                .password(user.getPassword())
-//                .role(juese)
-//                .token(token)
-//                .build();
+
         UserLoginVO userLoginVO=UserLoginVO.builder().id(user.getID())
                 .role(juese)
                 .token(token)

@@ -14,13 +14,11 @@ import org.example.fuer_xitong.pojo.vo.InstitutionSystemFileVO;
 import org.example.fuer_xitong.service.InstitutionFileSystemService;
 import org.example.fuer_xitong.utils.DeletePhysicalFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import static org.apache.tomcat.util.http.fileupload.FileUtils.deleteDirectory;
 
 @Service
 @Slf4j
@@ -35,10 +33,18 @@ public class InstitutionFileSystemServiceImpl implements InstitutionFileSystemSe
     @Autowired
     private UserMapper userMapper;
 
+    @Value("${file.upload-path}")
+    private String uploadPath;
+    @Value("${file.base-url}")
+    private String baseUrl;
     @Override
     @Transactional
     public void create(InstitutionFileSystemCreateDTO dto,String keshi,String groupPath) {
         String operatorId=BaseContext.getCurrentId();
+        if (keshi == null || keshi.trim().isEmpty()) {
+            keshi = userMapper.selectKeshiByJobNumber(operatorId);
+        }
+
 
 //        String keshi=userMapper.selectKeshiByJobNumber(operatorId);
         dto.setKeshi(keshi);
@@ -86,7 +92,7 @@ public class InstitutionFileSystemServiceImpl implements InstitutionFileSystemSe
 
 
         DeletePhysicalFile.deleteDirectoryQuietly(
-                "D:/yan/upload/InstitutionSystemFile/" + systemId + "/"
+                uploadPath+"upload/InstitutionSystemFile/" + systemId + "/"
         );
 
 //        // 5️⃣ 删除体系目录（可选，不影响主流程）

@@ -7,6 +7,7 @@ import org.example.fuer_xitong.pojo.vo.ProfessionalGroupMemberVO;
 import org.example.fuer_xitong.service.NoticeGroupService;
 import org.example.fuer_xitong.service.ProfessionalGroupMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +19,10 @@ import java.util.List;
 
 @Service
 public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemberService {
-
+    @Value("${file.upload-path}")
+    private String uploadPath;
+    @Value("${file.base-url}")
+    private String baseUrl;
     @Autowired
     private ProfessionalGroupMemberMapper professionalGroupMemberMapper;
 
@@ -47,7 +51,7 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
         }
 
         // 4️⃣ 基础路径（每个专业组成员独立文件夹）
-        String baseDir = "D:/yan/upload/ProfessionalGroupMember/"
+        String baseDir = uploadPath+"upload/ProfessionalGroupMember/"
                 + dto.getDepartmentId() + "/"
                 + dto.getGroupPath() + "/";
 
@@ -139,10 +143,16 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
 
 
 
-    private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) return null;
-        return "http://localhost:8080/files/" + dbPath.replace("D:/yan/upload/", "");
+//    private String toFileUrl(String dbPath) {
+//        if (dbPath == null || dbPath.isEmpty()) return null;
+//        return "http://localhost:8080/files/" + dbPath.replace("upload/", "");
+//    }
+private String toFileUrl(String dbPath) {
+    if (dbPath == null || dbPath.isEmpty()) {
+        return null;
     }
+    return baseUrl + "/files/" + dbPath;
+}
 
 
 

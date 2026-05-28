@@ -10,6 +10,7 @@ import org.example.fuer_xitong.pojo.vo.InstitutionSystemFileVO;
 import org.example.fuer_xitong.service.InstitutionSystemFileService;
 import org.example.fuer_xitong.utils.DeletePhysicalFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileService {
+    @Value("${file.upload-path}")
+    private String uploadPath;
+    @Value("${file.base-url}")
+    private String baseUrl;
 
     @Autowired
     private InstitutionSystemFileMapper institutionSystemFileMapper;
@@ -56,7 +61,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
             finalGroupPath = Grouppath.trim();
         }
         // 2️⃣ 体系级目录（不会再用自增ID作为目录）
-        String baseDir = "D:/yan/upload/"+ finalKeshi  +"/"+ systemId + "/"+finalGroupPath +"/";
+        String baseDir = uploadPath+"upload/"+ finalKeshi  +"/"+ systemId + "/"+finalGroupPath +"/";
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -151,7 +156,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
 
         String keshi = userMapper.selectKeshiByJobNumber(operatorId);
         // 3️⃣ 保存新文件（复用你的 saveFile）
-        String baseDir = "D:/yan/upload/"+keshi +"/"+ current.getSystemId() + "/";
+        String baseDir = uploadPath+"upload/"+keshi +"/"+ current.getSystemId() + "/";
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -262,18 +267,60 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
     /**
      * 将数据库存储路径转换成前端可访问 URL
      */
-    private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) return null;
+//    private String toFileUrl(String dbPath) {
+//        if (dbPath == null || dbPath.isEmpty()) return null;
+//
+//        // 1. 把 Windows 路径分隔符 \ 替换成 /
+//        String normalizedPath = dbPath.replace("\\", "/");
+//
+//        // 2. 去掉本地磁盘路径前缀
+//        String urlPath = normalizedPath.replace("upload/", "");
+//
+//        // 3. 拼成前端 URL
+//        return "http://localhost:8080/files/" + urlPath;
+//    }
+//    private String toFileUrl(String dbPath) {
+//        if (dbPath == null || dbPath.isEmpty()) {
+//            return null;
+//        }
+//        return baseUrl + "/files/" + dbPath;
+//    }
 
-        // 1. 把 Windows 路径分隔符 \ 替换成 /
-        String normalizedPath = dbPath.replace("\\", "/");
+    private String toFileUrl(String physicalPath) {
+        if (physicalPath == null || physicalPath.isEmpty()) return null;
 
-        // 2. 去掉本地磁盘路径前缀
-        String urlPath = normalizedPath.replace("D:/yan/upload/", "");
+        // 统一斜杠
+        String normalizedPhysical = physicalPath.replace("\\", "/");
+        String normalizedRoot = uploadPath.replace("\\", "/");
+        if (!normalizedRoot.endsWith("/")) normalizedRoot += "/";
 
-        // 3. 拼成前端 URL
-        return "http://localhost:8080/files/" + urlPath;
+        String relativePath;
+
+        // 如果路径以 uploadPath 开头，直接截取
+        if (normalizedPhysical.startsWith(normalizedRoot)) {
+            relativePath = normalizedPhysical.substring(normalizedRoot.length());
+        } else {
+            // 否则尝试去掉 D:/yan/ 前缀
+            int index = normalizedPhysical.indexOf("/upload");
+            if (index >= 0) {
+                relativePath = normalizedPhysical.substring(index + 1); // 去掉 D:/yan/
+            } else {
+                // 兜底，直接把盘符去掉
+                int colonIndex = normalizedPhysical.indexOf(":");
+                if (colonIndex >= 0) {
+                    relativePath = normalizedPhysical.substring(colonIndex + 1);
+                    // 去掉可能的开头斜杠
+                    if (relativePath.startsWith("/")) relativePath = relativePath.substring(1);
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        return baseUrl + "/files/" + relativePath;
     }
+
+
 
 
 

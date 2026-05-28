@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-@CrossOrigin
 @RestController
 @RequestMapping("/user/upload")
 @Slf4j

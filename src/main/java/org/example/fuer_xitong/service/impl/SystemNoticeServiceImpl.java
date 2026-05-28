@@ -8,6 +8,7 @@ import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.SystemNoticeVO;
 import org.example.fuer_xitong.service.SystemNoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class SystemNoticeServiceImpl implements SystemNoticeService {
+    @Value("${file.upload-path}")
+    private String uploadPath;
+    @Value("${file.base-url}")
+    private String baseUrl;
     @Autowired
     private SystemNoticeMapper systemNoticeMapper;
     @Override
@@ -45,7 +50,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
 
         // ================== 3. 构建通知附件存储目录 ==================
-        String baseDir = "D:/yan/upload/SystemNotice/"
+        String baseDir = uploadPath+"upload/SystemNotice/"
                 + noticeId + "/";
 
         // ================== 4. 保存附件 ==================
@@ -160,11 +165,17 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
 
         return vo;
     }
-    private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) return null;
-        return "http://localhost:8080/files/"
-                + dbPath.replace("D:/yan/upload/", "");
+//    private String toFileUrl(String dbPath) {
+//        if (dbPath == null || dbPath.isEmpty()) return null;
+//        return "http://localhost:8080/files/"
+//                + dbPath.replace("upload/", "");
+//    }
+private String toFileUrl(String dbPath) {
+    if (dbPath == null || dbPath.isEmpty()) {
+        return null;
     }
+    return baseUrl + "/files/" + dbPath;
+}
 
 }
 

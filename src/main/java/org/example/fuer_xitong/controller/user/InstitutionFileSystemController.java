@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/user/institution-file-system")
 @RequiredArgsConstructor
@@ -31,6 +30,7 @@ public class InstitutionFileSystemController {
      */
     @PostMapping("/create")
     public Result create(@RequestBody InstitutionFileSystemCreateDTO dto,@RequestParam(required = false) String keshi,@RequestParam(required = false, name = "groupPath") String groupPath) {
+
 
         institutionFileSystemService.create(dto,keshi,groupPath);
         return Result.success("成功创建文件体系");

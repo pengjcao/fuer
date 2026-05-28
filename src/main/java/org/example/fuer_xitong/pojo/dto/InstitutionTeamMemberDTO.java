@@ -32,4 +32,5 @@ public class InstitutionTeamMemberDTO {
 
     /** 执业证书文件（可选） */
     private MultipartFile licenseFile;
+
 }

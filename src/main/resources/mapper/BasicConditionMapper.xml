@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.fuer_xitong.mapper.BasicConditionMapper">
+
+    <insert id="insertBasicCondition">
+        INSERT INTO basic_condition
+        (campus_list, bed_count, inpatient_count, avg_daily_outpatient_count, disease_source, create_by, keshi)
+        VALUES
+            (#{dto.campusList},
+             #{dto.bedCount},
+             #{dto.inpatientCount},
+             #{dto.avgDailyOutpatientCount},
+             #{dto.diseaseSource},
+             #{dto.createBy},
+            #{dto.keshi})
+    </insert>
+
+    <select id="selectBasicConditionByCreateBy" resultType="org.example.fuer_xitong.pojo.dto.BasicConditionDTO">
+        SELECT
+            id,
+            create_by AS createBy,
+            campus_list AS campusList,
+            bed_count AS bedCount,
+            inpatient_count AS inpatientCount,
+            avg_daily_outpatient_count AS avgDailyOutpatientCount,
+            disease_source AS diseaseSource
+        FROM basic_condition
+        WHERE create_by = #{createBy}
+            LIMIT 1
+    </select>
+
+    <select id="selectByKeshi" resultType="org.example.fuer_xitong.pojo.dto.BasicConditionDTO">
+        SELECT *
+        FROM basic_condition
+        WHERE keshi = #{keshi}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

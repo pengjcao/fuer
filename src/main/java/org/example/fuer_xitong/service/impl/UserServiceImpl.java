@@ -23,11 +23,13 @@ import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements Userservice {
+
+
     @Autowired
     private UserMapper userMapper;
 
-    @Value("D:/yan")
-    private String uploadPath;
+//    @Value("D:/yan")
+//    private String uploadPath;
 
 
     @Override

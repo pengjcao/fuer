@@ -1,6 +1,7 @@
 package org.example.fuer_xitong.service.impl;
 
 import jakarta.transaction.Transactional;
+
 import org.example.fuer_xitong.mapper.DrugTrialSopFileMapper;
 import org.example.fuer_xitong.mapper.InstitutionFileMapper;
 import org.example.fuer_xitong.mapper.InstitutionTeamMemberMapper;
@@ -15,8 +16,10 @@ import org.example.fuer_xitong.pojo.vo.InstitutionFileVO;
 import org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO;
 import org.example.fuer_xitong.pojo.vo.InstitutionTrialManagementFileVO;
 import org.example.fuer_xitong.service.InstitutionFileService;
+import org.example.fuer_xitong.utils.ChangeRoute;
 import org.example.fuer_xitong.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,8 +33,15 @@ import java.util.stream.Collectors;
 @Service
 public class InstitutionFileServiceImpl implements InstitutionFileService {
 
+    @Value("${file.upload-path}")
+    private String uploadPath;
+
+    @Value("${file.base-url}")
+    private String baseUrl;
     @Autowired
     private InstitutionFileMapper institutionFileMapper;
+
+
 
     @Autowired
     private TrialManagementFileMapper trialManagementFileMapper;
@@ -63,7 +73,7 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
         }
 
         // ================== 3. 构建统一文件存储路径 ==================
-        String baseDir = "D:/yan/upload/InstitutionFile/"
+        String baseDir = uploadPath+"upload/InstitutionFile/"
                 + dto.getInstitutionId() + "/"
                 + institutionFileId + "/";
 
@@ -151,7 +161,7 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
         Integer trialFileId = minimalDTO.getInstitutionTrialManagementFileId(); // 回填自增 ID
 
         // ================== 3. 构建存储目录 ==================
-        String baseDir = "D:/yan/upload/InstitutionFile/"
+        String baseDir = uploadPath+"upload/InstitutionFile/"
                 + institutionId + "/"
                 + institutionFileId + "/trialManagement/"
                 + trialFileId + "/"; // 用自增 ID 分目录
@@ -231,7 +241,7 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
                 minimalDTO.getInstitutionDrugTrialSopFileId(); // 回填自增 ID
 
         // ================== 4. 构建存储目录 ==================
-        String baseDir = "D:/yan/upload/InstitutionFile/"
+        String baseDir = uploadPath+"upload/InstitutionFile/"
                 + institutionId + "/"
                 + institutionFileId + "/drugTrialSop/"
                 + sopFileId + "/";   // 用自增 ID 分目录
@@ -301,9 +311,15 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
 //        return vo;
 //    }
 
+//    private String toFileUrl(String dbPath) {
+//        if (dbPath == null || dbPath.isEmpty()) return null;
+//        return "http://localhost:8080/files/" + dbPath.replace("upload/", "");
+//    }
     private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) return null;
-        return "http://localhost:8080/files/" + dbPath.replace("D:/yan/upload/", "");
+        if (dbPath == null || dbPath.isEmpty()) {
+            return null;
+        }
+        return baseUrl + "/files/" + dbPath;
     }
 
 
