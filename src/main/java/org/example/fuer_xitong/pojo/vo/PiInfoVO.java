@@ -17,6 +17,7 @@ public class PiInfoVO {
     private Integer applyType;
     // 文件 URL
     private String piPhotoPath;
+    private String idCardCopyPath;
     private String seniorTitleCertificatePath;
     private String seniorTitleAppointmentPath;
     private String signedResumePath;

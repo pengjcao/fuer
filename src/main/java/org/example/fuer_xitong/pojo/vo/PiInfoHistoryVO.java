@@ -25,6 +25,7 @@ public class PiInfoHistoryVO {
 
     // ================= 文件路径 =================
     private String piPhotoPath;
+    private String idCardCopyPath;
     private String seniorTitleCertificatePath;
     private String seniorTitleAppointmentPath;
     private String signedResumePath;

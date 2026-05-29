@@ -12,6 +12,7 @@ public class PiInfoDTO {
 
     private Integer applyType;
     private MultipartFile piPhoto;
+    private MultipartFile idCardCopy;
     private MultipartFile seniorTitleCertificate;
     private MultipartFile seniorTitleAppointment;
     private MultipartFile signedResume;

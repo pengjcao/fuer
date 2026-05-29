@@ -82,6 +82,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
 
         // ================== 3. 保存 PI 基本文件 ==================
         String piPhotoPath = saveFile(dto.getPiPhoto(), baseDir);
+        String idCardCopyPath = saveFile(dto.getIdCardCopy(), baseDir);
         String seniorTitleCertificatePath = saveFile(dto.getSeniorTitleCertificate(), baseDir);
         String seniorTitleAppointmentPath = saveFile(dto.getSeniorTitleAppointment(), baseDir);
         String signedResumePath = saveFile(dto.getSignedResume(), baseDir);
@@ -119,6 +120,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
                 qualificationCertificatePath,
                 practiceCertificatePath,
                 gcpCertificatePath,
+                idCardCopyPath,
                 Boolean.TRUE.equals(dto.getClinicalParticipation()) ? 1 : 0,
                 dto.getClinicalReason(),
                 clinicalRootPath,
@@ -211,6 +213,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
 
     private PiInfoVO convertFilePaths(PiInfoVO vo) {
         vo.setPiPhotoPath(toFileUrl(vo.getPiPhotoPath()));
+        vo.setIdCardCopyPath(toFileUrl(vo.getIdCardCopyPath()));
         vo.setSeniorTitleCertificatePath(toFileUrl(vo.getSeniorTitleCertificatePath()));
         vo.setSeniorTitleAppointmentPath(toFileUrl(vo.getSeniorTitleAppointmentPath()));
         vo.setSignedResumePath(toFileUrl(vo.getSignedResumePath()));
