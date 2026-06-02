@@ -7,6 +7,7 @@ import org.example.fuer_xitong.pojo.dto.*;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.*;
 import org.example.fuer_xitong.service.SiteFacilityService;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,9 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private FilePathUtil filePathUtil;
+
     @Transactional
     @Override
     public void reportReceptionRoom(FacilityReceptionRoomDTO dto) {
@@ -53,12 +57,12 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
         String photoPath = null;
 
         if (photoFile != null && !photoFile.isEmpty()) {
-            String baseDir = uploadPath
-                    + "/siteFacility/receptionRoom/"
-                    + dto.getKeshi()
-                    + "/"
-                    + receptionRoomId
-                    + "/";
+            String baseDir = filePathUtil.buildUploadDir(
+                    "siteFacility",
+                    "receptionRoom",
+                    dto.getKeshi(),
+                    String.valueOf(receptionRoomId)
+            );
 
             File baseFolder = new File(baseDir);
             if (!baseFolder.exists()) {
@@ -76,23 +80,9 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
 
     @Override
     public List<FacilityReceptionRoomVO> getReceptionRoomDetail(String keshi) {
-        // 1. 当前登录用户工号
-        String currentUserId = BaseContext.getCurrentId();
+        keshi = resolveReadableKeshi(keshi);
 
-        // 2. 当前用户所属科室
-        String currentKeshi = userMapper.selectKeshiByJobNumber(currentUserId);
-
-        // 3. 如果前端没传keshi，默认查自己的科室
-        if (keshi == null || keshi.trim().isEmpty()) {
-            keshi = currentKeshi;
-        }
-
-        // 4. 权限判断：不是自己科室且不是科研处，则无权限
-        if (!keshi.equals(currentKeshi) && !"科研处".equals(currentKeshi)) {
-            throw new RuntimeException("无权限查看该科室数据");
-        }
-
-        // 5. 查询详情，返回List
+        // 查询详情，返回List
         List<FacilityReceptionRoomVO> list = siteFacilityMapper.selectReceptionRoomByKeshi(keshi);
 
         if (list == null || list.isEmpty()) {
@@ -127,12 +117,12 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
         MultipartFile photoFile = dto.getPhoto();
 
         if (photoFile != null && !photoFile.isEmpty()) {
-            String baseDir = uploadPath
-                    + "/siteFacility/managementRoom/"
-                    + dto.getKeshi()
-                    + "/"
-                    + managementRoomId
-                    + "/";
+            String baseDir = filePathUtil.buildUploadDir(
+                    "siteFacility",
+                    "managementRoom",
+                    dto.getKeshi(),
+                    String.valueOf(managementRoomId)
+            );
 
             File baseFolder = new File(baseDir);
             if (!baseFolder.exists()) {
@@ -152,23 +142,9 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
      */
     @Override
     public List<FacilityManagementRoomVO> getManagementRoomDetail(String keshi) {
-        // 1. 当前登录用户工号
-        String currentUserId = BaseContext.getCurrentId();
+        keshi = resolveReadableKeshi(keshi);
 
-        // 2. 当前用户所属科室
-        String currentKeshi = userMapper.selectKeshiByJobNumber(currentUserId);
-
-        // 3. 如果前端没传keshi，默认查自己的科室
-        if (keshi == null || keshi.trim().isEmpty()) {
-            keshi = currentKeshi;
-        }
-
-        // 4. 权限判断：不是自己科室且不是科研处，则无权限
-        if (!keshi.equals(currentKeshi) && !"科研处".equals(currentKeshi)) {
-            throw new RuntimeException("无权限查看该科室数据");
-        }
-
-        // 5. 查询详情，直接返回List<VO>
+        // 查询详情，直接返回List<VO>
         List<FacilityManagementRoomVO> list = siteFacilityMapper.selectManagementRoomByKeshi(keshi);
 
         if (list == null || list.isEmpty()) {
@@ -206,12 +182,12 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
         MultipartFile photoFile = dto.getPhoto();
 
         if (photoFile != null && !photoFile.isEmpty()) {
-            String baseDir = uploadPath
-                    + "/siteFacility/drugStorageRoom/"
-                    + dto.getKeshi()
-                    + "/"
-                    + drugStorageRoomId
-                    + "/";
+            String baseDir = filePathUtil.buildUploadDir(
+                    "siteFacility",
+                    "drugStorageRoom",
+                    dto.getKeshi(),
+                    String.valueOf(drugStorageRoomId)
+            );
 
             File baseFolder = new File(baseDir);
             if (!baseFolder.exists()) {
@@ -227,23 +203,9 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
 
     @Override
     public List<FacilityDrugStorageRoomVO> getDrugStorageRoomDetail(String keshi) {
-        // 1. 当前登录用户工号
-        String currentUserId = BaseContext.getCurrentId();
+        keshi = resolveReadableKeshi(keshi);
 
-        // 2. 当前用户所属科室
-        String currentKeshi = userMapper.selectKeshiByJobNumber(currentUserId);
-
-        // 3. 如果前端没传keshi，默认查自己的科室
-        if (keshi == null || keshi.trim().isEmpty()) {
-            keshi = currentKeshi;
-        }
-
-        // 4. 权限判断：不是自己科室且不是科研处，则无权限
-        if (!keshi.equals(currentKeshi) && !"科研处".equals(currentKeshi)) {
-            throw new RuntimeException("无权限查看该科室数据");
-        }
-
-        // 5. 查询详情
+        // 查询详情
         List<FacilityDrugStorageRoomVO> list = siteFacilityMapper.selectDrugStorageRoomByKeshi(keshi);
 
         if (list == null || list.isEmpty()) {
@@ -281,12 +243,12 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
         MultipartFile photoFile = dto.getPhoto();
 
         if (photoFile != null && !photoFile.isEmpty()) {
-            String baseDir = uploadPath
-                    + "/siteFacility/equipmentStorageRoom/"
-                    + dto.getKeshi()
-                    + "/"
-                    + equipmentStorageRoomId
-                    + "/";
+            String baseDir = filePathUtil.buildUploadDir(
+                    "siteFacility",
+                    "equipmentStorageRoom",
+                    dto.getKeshi(),
+                    String.valueOf(equipmentStorageRoomId)
+            );
 
             File baseFolder = new File(baseDir);
             if (!baseFolder.exists()) {
@@ -302,23 +264,9 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
 
     @Override
     public List<FacilityEquipmentStorageRoomVO> getEquipmentStorageRoomDetail(String keshi) {
-        // 1. 当前登录用户工号
-        String currentUserId = BaseContext.getCurrentId();
+        keshi = resolveReadableKeshi(keshi);
 
-        // 2. 当前用户所属科室
-        String currentKeshi = userMapper.selectKeshiByJobNumber(currentUserId);
-
-        // 3. 如果前端没传keshi，默认查自己的科室
-        if (keshi == null || keshi.trim().isEmpty()) {
-            keshi = currentKeshi;
-        }
-
-        // 4. 权限判断：不是自己科室且不是科研处，则无权限
-        if (!keshi.equals(currentKeshi) && !"科研处".equals(currentKeshi)) {
-            throw new RuntimeException("无权限查看该科室数据");
-        }
-
-        // 5. 查询详情
+        // 查询详情
         List<FacilityEquipmentStorageRoomVO> list = siteFacilityMapper.selectEquipmentStorageRoomByKeshi(keshi);
 
         if (list == null || list.isEmpty()) {
@@ -353,12 +301,12 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
         MultipartFile photoFile = dto.getPhoto();
 
         if (photoFile != null && !photoFile.isEmpty()) {
-            String baseDir = uploadPath
-                    + "/siteFacility/sampleStorageRoom/"
-                    + dto.getKeshi()
-                    + "/"
-                    + sampleStorageRoomId
-                    + "/";
+            String baseDir = filePathUtil.buildUploadDir(
+                    "siteFacility",
+                    "sampleStorageRoom",
+                    dto.getKeshi(),
+                    String.valueOf(sampleStorageRoomId)
+            );
 
             File baseFolder = new File(baseDir);
             if (!baseFolder.exists()) {
@@ -374,23 +322,9 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
 
     @Override
     public List<FacilitySampleStorageRoomVO> getSampleStorageRoomDetail(String keshi) {
-        // 1. 当前登录用户工号
-        String currentUserId = BaseContext.getCurrentId();
+        keshi = resolveReadableKeshi(keshi);
 
-        // 2. 当前用户所属科室
-        String currentKeshi = userMapper.selectKeshiByJobNumber(currentUserId);
-
-        // 3. 如果前端没传keshi，默认查自己的科室
-        if (keshi == null || keshi.trim().isEmpty()) {
-            keshi = currentKeshi;
-        }
-
-        // 4. 权限判断：不是自己科室且不是科研处，则无权限
-        if (!keshi.equals(currentKeshi) && !"科研处".equals(currentKeshi)) {
-            throw new RuntimeException("无权限查看该科室数据");
-        }
-
-        // 5. 查询详情
+        // 查询详情
         List<FacilitySampleStorageRoomVO> list = siteFacilityMapper.selectSampleStorageRoomByKeshi(keshi);
 
         if (list == null || list.isEmpty()) {
@@ -416,17 +350,7 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
 
     @Override
     public List<FacilityEmergencyEquipmentVO> getEmergencyEquipmentDetail(String keshi) {
-
-        String currentUserId = BaseContext.getCurrentId();
-        String currentKeshi = userMapper.selectKeshiByJobNumber(currentUserId);
-
-        if (keshi == null || keshi.trim().isEmpty()) {
-            keshi = currentKeshi;
-        }
-
-        if (!keshi.equals(currentKeshi) && !"科研处".equals(currentKeshi)) {
-            throw new RuntimeException("无权限查看该科室数据");
-        }
+        keshi = resolveReadableKeshi(keshi);
 
         List<FacilityEmergencyEquipmentVO> list = siteFacilityMapper.selectEmergencyEquipmentByKeshi(keshi);
 
@@ -438,30 +362,34 @@ public class SiteFacilityServiceImpl implements SiteFacilityService {
     }
 
     private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) {
-            return null;
-        }
-        return baseUrl + "/files/" + dbPath;
+        return filePathUtil.toFileUrl(dbPath);
     }
 
     private String saveFile(MultipartFile file, String path) {
-        if (file == null || file.isEmpty()) return null;
+        return filePathUtil.saveFile(file, path);
+    }
 
-        try {
+    private String resolveReadableKeshi(String keshi) {
+        String currentUserId = BaseContext.getCurrentId();
+        Integer currentRole = BaseContext.getCurrentRole();
+        String currentKeshi = userMapper.selectKeshiByJobNumber(currentUserId);
 
-            File folder = new File(path);
-            if (!folder.exists()) folder.mkdirs();
-
-            // 文件名加时间戳，避免覆盖
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            String filePath = path + fileName;
-
-            // 保存文件到磁盘
-            file.transferTo(new File(filePath));
-
-            return filePath;
-        } catch (Exception e) {
-            throw new RuntimeException("文件保存失败", e);
+        if (keshi == null || keshi.trim().isEmpty()) {
+            return currentKeshi;
         }
+
+        keshi = keshi.trim();
+
+        // role > 1 是管理员/审批人员，可以查看任意科室
+        if (currentRole != null && currentRole > 1) {
+            return keshi;
+        }
+
+        // role = 1 研究者只能查看自己科室；保留原来“科研处”可查看全部的逻辑
+        if (!keshi.equals(currentKeshi) && !"科研处".equals(currentKeshi)) {
+            throw new RuntimeException("无权限查看该科室数据");
+        }
+
+        return keshi;
     }
 }

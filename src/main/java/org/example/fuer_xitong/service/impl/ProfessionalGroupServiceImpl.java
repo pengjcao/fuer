@@ -9,6 +9,7 @@ import org.example.fuer_xitong.pojo.dto.ProfessionalGroupAddDTO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 import org.example.fuer_xitong.service.ProfessionalGroupService;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,13 +33,16 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
     @Autowired
     private ProfessionalGroupMapper professionalGroupMapper;
 
+    @Autowired
+    private FilePathUtil filePathUtil;
+
 
 
     @Override
     public void addProfessionalGroup(ProfessionalGroupAddDTO dto) {
 
         MultipartFile file = dto.getSelfAssessmentReport();
-        String filePath = saveFile(file,"professional-group");
+        String filePath = saveFile(file, filePathUtil.buildUploadDir("professional-group"));
         String Id=BaseContext.getCurrentId();
         professionalGroupMapper.insertProfessionalGroup(
                 Id,
@@ -76,7 +80,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         }
 
         // ================== 2. 构建统一 PI 文件存储路径 ==================
-        String baseDir = uploadPath+"upload/Pi/" + id + "/" + piInfoId + "/";
+        String baseDir = filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId));
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) baseFolder.mkdirs();
 
@@ -231,10 +235,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
 //        return "http://localhost:8080/files/" + dbPath.replace("upload/", "");
 //    }
     private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) {
-            return null;
-        }
-        return baseUrl + "/files/" + dbPath;
+        return filePathUtil.toFileUrl(dbPath);
     }
 
     /**
@@ -248,23 +249,6 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
 
 
     private String saveFile(MultipartFile file, String path) {
-        if (file == null || file.isEmpty()) return null;
-
-        try {
-
-            File folder = new File(path);
-            if (!folder.exists()) folder.mkdirs();
-
-            // 文件名加时间戳，避免覆盖
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            String filePath = path + fileName;
-
-            // 保存文件到磁盘
-            file.transferTo(new File(filePath));
-
-            return filePath;
-        } catch (Exception e) {
-            throw new RuntimeException("文件保存失败", e);
-        }
+        return filePathUtil.saveFile(file, path);
     }
 }

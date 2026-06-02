@@ -6,6 +6,7 @@ import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.ProfessionalGroupMemberVO;
 import org.example.fuer_xitong.service.NoticeGroupService;
 import org.example.fuer_xitong.service.ProfessionalGroupMemberService;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,9 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
     private String baseUrl;
     @Autowired
     private ProfessionalGroupMemberMapper professionalGroupMemberMapper;
+
+    @Autowired
+    private FilePathUtil filePathUtil;
 
     @Override
     @Transactional
@@ -51,9 +55,11 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
         }
 
         // 4️⃣ 基础路径（每个专业组成员独立文件夹）
-        String baseDir = uploadPath+"upload/ProfessionalGroupMember/"
-                + dto.getDepartmentId() + "/"
-                + dto.getGroupPath() + "/";
+        String baseDir = filePathUtil.buildUploadDir(
+                "ProfessionalGroupMember",
+                String.valueOf(dto.getDepartmentId()),
+                dto.getGroupPath()
+        );
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -148,10 +154,7 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
 //        return "http://localhost:8080/files/" + dbPath.replace("upload/", "");
 //    }
 private String toFileUrl(String dbPath) {
-    if (dbPath == null || dbPath.isEmpty()) {
-        return null;
-    }
-    return baseUrl + "/files/" + dbPath;
+    return filePathUtil.toFileUrl(dbPath);
 }
 
 
@@ -160,23 +163,7 @@ private String toFileUrl(String dbPath) {
      * 保存单个文件，返回存储路径（沿用你原来的写法）
      */
     private String saveFile(MultipartFile file, String baseDir) {
-        if (file == null || file.isEmpty()) {
-            return null;
-        }
-
-        try {
-            String originalName = file.getOriginalFilename();
-            String fileName = System.currentTimeMillis() + "_" + originalName;
-
-            File dest = new File(baseDir + fileName);
-            dest.getParentFile().mkdirs();
-
-            file.transferTo(dest);
-            return dest.getAbsolutePath();
-
-        } catch (Exception e) {
-            throw new RuntimeException("文件保存失败", e);
-        }
+        return filePathUtil.saveFile(file, baseDir);
     }
 
 }

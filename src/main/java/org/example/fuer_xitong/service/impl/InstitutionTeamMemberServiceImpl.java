@@ -7,6 +7,7 @@ import org.example.fuer_xitong.pojo.minimal.InstitutionTeamMemberMinimalDTO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO;
 import org.example.fuer_xitong.service.InstitutionTeamMemberService;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class InstitutionTeamMemberServiceImpl implements InstitutionTeamMemberSe
     @Autowired
     private InstitutionTeamMemberMapper institutionTeamMemberMapper;
 
+    @Autowired
+    private FilePathUtil filePathUtil;
+
     @Override
     public void saveOrUpdate(InstitutionTeamMemberDTO dto) {
         // 1. 获取当前操作人 ID
@@ -46,10 +50,12 @@ public class InstitutionTeamMemberServiceImpl implements InstitutionTeamMemberSe
         }
 
         // ================== 2. 构建统一文件存储路径 ==================
-        String baseDir = uploadPath+"upload/InstitutionTeamMember/"
-                + dto.getInstitutionId() + "/"
-                + dto.getInstitutionMemberId() + "/"
-                + ziziId + "/";
+        String baseDir = filePathUtil.buildUploadDir(
+                "InstitutionTeamMember",
+                dto.getInstitutionId(),
+                dto.getInstitutionMemberId(),
+                String.valueOf(ziziId)
+        );
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -128,10 +134,7 @@ public class InstitutionTeamMemberServiceImpl implements InstitutionTeamMemberSe
 //        return "http://localhost:8080/files/" + dbPath.replace("yan/upload/", "");
 //    }
 private String toFileUrl(String dbPath) {
-    if (dbPath == null || dbPath.isEmpty()) {
-        return null;
-    }
-    return baseUrl + "/files/" + dbPath;
+    return filePathUtil.toFileUrl(dbPath);
 }
 
     /**
@@ -144,24 +147,7 @@ private String toFileUrl(String dbPath) {
 
 
     private String saveFile(MultipartFile file, String path) {
-        if (file == null || file.isEmpty()) return null;
-
-        try {
-
-            File folder = new File(path);
-            if (!folder.exists()) folder.mkdirs();
-
-            // 文件名加时间戳，避免覆盖
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            String filePath = path + fileName;
-
-            // 保存文件到磁盘
-            file.transferTo(new File(filePath));
-
-            return filePath;
-        } catch (Exception e) {
-            throw new RuntimeException("文件保存失败", e);
-        }
+        return filePathUtil.saveFile(file, path);
     }
 
 

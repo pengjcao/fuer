@@ -1,6 +1,7 @@
 package org.example.fuer_xitong.pojo.dto;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class BasicConditionDTO {
@@ -40,6 +41,25 @@ public class BasicConditionDTO {
      */
     private String diseaseSource;
 
+    /**
+     * 科室合照文件
+     */
+    private MultipartFile departmentPhoto;
+
+    /**
+     * 科室合照文件路径
+     */
+    private String departmentPhotoPath;
+
+    /**
+     * 科室介绍文件
+     */
+    private MultipartFile departmentIntroduction;
+
+    /**
+     * 科室介绍文件路径
+     */
+    private String departmentIntroductionPath;
 
     private String keshi;
 }

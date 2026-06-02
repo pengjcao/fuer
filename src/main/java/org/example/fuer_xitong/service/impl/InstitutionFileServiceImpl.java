@@ -17,6 +17,7 @@ import org.example.fuer_xitong.pojo.vo.InstitutionTeamMemberVO;
 import org.example.fuer_xitong.pojo.vo.InstitutionTrialManagementFileVO;
 import org.example.fuer_xitong.service.InstitutionFileService;
 import org.example.fuer_xitong.utils.ChangeRoute;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.example.fuer_xitong.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,9 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
     private String baseUrl;
     @Autowired
     private InstitutionFileMapper institutionFileMapper;
+
+    @Autowired
+    private FilePathUtil filePathUtil;
 
 
 
@@ -73,9 +77,11 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
         }
 
         // ================== 3. 构建统一文件存储路径 ==================
-        String baseDir = uploadPath+"upload/InstitutionFile/"
-                + dto.getInstitutionId() + "/"
-                + institutionFileId + "/";
+        String baseDir = filePathUtil.buildUploadDir(
+                "InstitutionFile",
+                dto.getInstitutionId(),
+                String.valueOf(institutionFileId)
+        );
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -161,10 +167,13 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
         Integer trialFileId = minimalDTO.getInstitutionTrialManagementFileId(); // 回填自增 ID
 
         // ================== 3. 构建存储目录 ==================
-        String baseDir = uploadPath+"upload/InstitutionFile/"
-                + institutionId + "/"
-                + institutionFileId + "/trialManagement/"
-                + trialFileId + "/"; // 用自增 ID 分目录
+        String baseDir = filePathUtil.buildUploadDir(
+                "InstitutionFile",
+                institutionId,
+                String.valueOf(institutionFileId),
+                "trialManagement",
+                String.valueOf(trialFileId)
+        ); // 用自增 ID 分目录
 
         File dir = new File(baseDir);
         if (!dir.exists()) {
@@ -241,10 +250,13 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
                 minimalDTO.getInstitutionDrugTrialSopFileId(); // 回填自增 ID
 
         // ================== 4. 构建存储目录 ==================
-        String baseDir = uploadPath+"upload/InstitutionFile/"
-                + institutionId + "/"
-                + institutionFileId + "/drugTrialSop/"
-                + sopFileId + "/";   // 用自增 ID 分目录
+        String baseDir = filePathUtil.buildUploadDir(
+                "InstitutionFile",
+                institutionId,
+                String.valueOf(institutionFileId),
+                "drugTrialSop",
+                String.valueOf(sopFileId)
+        );   // 用自增 ID 分目录
 
         File dir = new File(baseDir);
         if (!dir.exists()) {
@@ -316,10 +328,7 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
 //        return "http://localhost:8080/files/" + dbPath.replace("upload/", "");
 //    }
     private String toFileUrl(String dbPath) {
-        if (dbPath == null || dbPath.isEmpty()) {
-            return null;
-        }
-        return baseUrl + "/files/" + dbPath;
+        return filePathUtil.toFileUrl(dbPath);
     }
 
 
@@ -333,24 +342,7 @@ public class InstitutionFileServiceImpl implements InstitutionFileService {
 
 
     private String saveFile(MultipartFile file, String path) {
-        if (file == null || file.isEmpty()) return null;
-
-        try {
-
-            File folder = new File(path);
-            if (!folder.exists()) folder.mkdirs();
-
-            // 文件名加时间戳，避免覆盖
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            String filePath = path + fileName;
-
-            // 保存文件到磁盘
-            file.transferTo(new File(filePath));
-
-            return filePath;
-        } catch (Exception e) {
-            throw new RuntimeException("文件保存失败", e);
-        }
+        return filePathUtil.saveFile(file, path);
     }
 
 }

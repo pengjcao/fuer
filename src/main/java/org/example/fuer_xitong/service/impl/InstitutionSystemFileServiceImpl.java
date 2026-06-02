@@ -9,6 +9,7 @@ import org.example.fuer_xitong.pojo.vo.InstitutionSystemFileHistoryVO;
 import org.example.fuer_xitong.pojo.vo.InstitutionSystemFileVO;
 import org.example.fuer_xitong.service.InstitutionSystemFileService;
 import org.example.fuer_xitong.utils.DeletePhysicalFile;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,9 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private FilePathUtil filePathUtil;
 
     @Override
     @Transactional
@@ -61,7 +65,11 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
             finalGroupPath = Grouppath.trim();
         }
         // 2️⃣ 体系级目录（不会再用自增ID作为目录）
-        String baseDir = uploadPath+"upload/"+ finalKeshi  +"/"+ systemId + "/"+finalGroupPath +"/";
+        String baseDir = filePathUtil.buildUploadDir(
+                finalKeshi,
+                String.valueOf(systemId),
+                finalGroupPath
+        );
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -110,7 +118,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
         if(keshi!=null && !keshi.trim().isEmpty()) {
             // 查询数据库
             List<InstitutionSystemFileVO> aaa = institutionSystemFileMapper.selectByCondition(systemId,keshi,Grouppath);
-            return aaa;
+            return convertFilePaths(aaa);
         }
 
         // 查询数据库
@@ -156,7 +164,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
 
         String keshi = userMapper.selectKeshiByJobNumber(operatorId);
         // 3️⃣ 保存新文件（复用你的 saveFile）
-        String baseDir = uploadPath+"upload/"+keshi +"/"+ current.getSystemId() + "/";
+        String baseDir = filePathUtil.buildUploadDir(keshi, String.valueOf(current.getSystemId()));
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -287,37 +295,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
 //    }
 
     private String toFileUrl(String physicalPath) {
-        if (physicalPath == null || physicalPath.isEmpty()) return null;
-
-        // 统一斜杠
-        String normalizedPhysical = physicalPath.replace("\\", "/");
-        String normalizedRoot = uploadPath.replace("\\", "/");
-        if (!normalizedRoot.endsWith("/")) normalizedRoot += "/";
-
-        String relativePath;
-
-        // 如果路径以 uploadPath 开头，直接截取
-        if (normalizedPhysical.startsWith(normalizedRoot)) {
-            relativePath = normalizedPhysical.substring(normalizedRoot.length());
-        } else {
-            // 否则尝试去掉 D:/yan/ 前缀
-            int index = normalizedPhysical.indexOf("/upload");
-            if (index >= 0) {
-                relativePath = normalizedPhysical.substring(index + 1); // 去掉 D:/yan/
-            } else {
-                // 兜底，直接把盘符去掉
-                int colonIndex = normalizedPhysical.indexOf(":");
-                if (colonIndex >= 0) {
-                    relativePath = normalizedPhysical.substring(colonIndex + 1);
-                    // 去掉可能的开头斜杠
-                    if (relativePath.startsWith("/")) relativePath = relativePath.substring(1);
-                } else {
-                    return null;
-                }
-            }
-        }
-
-        return baseUrl + "/files/" + relativePath;
+        return filePathUtil.toFileUrl(physicalPath);
     }
 
 
@@ -328,20 +306,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
      * 保存单个文件，返回存储路径
      */
     private String saveFile(MultipartFile file, String baseDir) {
-
-        try {
-            String originalName = file.getOriginalFilename();
-            String fileName = System.currentTimeMillis()
-                    + "_" + originalName;
-
-            File dest = new File(baseDir + fileName);
-            file.transferTo(dest);
-
-            return dest.getAbsolutePath();
-
-        } catch (Exception e) {
-            throw new RuntimeException("文件保存失败", e);
-        }
+        return filePathUtil.saveFile(file, baseDir);
     }
 
 }

@@ -7,13 +7,23 @@
 
     <insert id="insertBasicCondition">
         INSERT INTO basic_condition
-        (campus_list, bed_count, inpatient_count, avg_daily_outpatient_count, disease_source, create_by, keshi)
+        (campus_list,
+         bed_count,
+         inpatient_count,
+         avg_daily_outpatient_count,
+         disease_source,
+         department_photo_path,
+         department_introduction_path,
+         create_by,
+         keshi)
         VALUES
             (#{dto.campusList},
              #{dto.bedCount},
              #{dto.inpatientCount},
              #{dto.avgDailyOutpatientCount},
              #{dto.diseaseSource},
+             #{dto.departmentPhotoPath},
+             #{dto.departmentIntroductionPath},
              #{dto.createBy},
             #{dto.keshi})
     </insert>
@@ -26,7 +36,9 @@
             bed_count AS bedCount,
             inpatient_count AS inpatientCount,
             avg_daily_outpatient_count AS avgDailyOutpatientCount,
-            disease_source AS diseaseSource
+            disease_source AS diseaseSource,
+            department_photo_path AS departmentPhotoPath,
+            department_introduction_path AS departmentIntroductionPath
         FROM basic_condition
         WHERE create_by = #{createBy}
             LIMIT 1

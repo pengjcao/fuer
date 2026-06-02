@@ -3,8 +3,8 @@ package org.example.fuer_xitong.config;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fuer_xitong.interceptor.JwtTokenAdminInterceptor;
 import org.example.fuer_xitong.interceptor.JwtTokenUserInterceptor;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -19,8 +19,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
-    @Value("${file.upload-path}")
-    private String uploadPath;
+
+    @Autowired
+    private FilePathUtil filePathUtil;
 
     /**
      * 注册自定义拦截器
@@ -53,7 +54,11 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         // 新增：映射磁盘文件
         // 文件映射
         registry.addResourceHandler("/files/**")
-                .addResourceLocations("file:" + uploadPath);
+                .addResourceLocations(
+                        filePathUtil.getUploadRootLocation(),
+                        filePathUtil.getLegacyUploadRootLocation(),
+                        filePathUtil.getNestedUploadRootLocation()
+                );
     }
 
 }

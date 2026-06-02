@@ -7,6 +7,7 @@ import org.example.fuer_xitong.pojo.dto.SystemNoticePublishDTO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.SystemNoticeVO;
 import org.example.fuer_xitong.service.SystemNoticeService;
+import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,9 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
     private String baseUrl;
     @Autowired
     private SystemNoticeMapper systemNoticeMapper;
+
+    @Autowired
+    private FilePathUtil filePathUtil;
     @Override
     @Transactional
     public void publish(SystemNoticePublishDTO dto) {
@@ -50,8 +54,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
 
         // ================== 3. 构建通知附件存储目录 ==================
-        String baseDir = uploadPath+"upload/SystemNotice/"
-                + noticeId + "/";
+        String baseDir = filePathUtil.buildUploadDir("SystemNotice", String.valueOf(noticeId));
 
         // ================== 4. 保存附件 ==================
         List<String> pathList = new ArrayList<>();
@@ -75,24 +78,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
 
 
     private String saveFile(MultipartFile file, String path) {
-        if (file == null || file.isEmpty()) return null;
-
-        try {
-
-            File folder = new File(path);
-            if (!folder.exists()) folder.mkdirs();
-
-            // 文件名加时间戳，避免覆盖
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            String filePath = path + fileName;
-
-            // 保存文件到磁盘
-            file.transferTo(new File(filePath));
-
-            return filePath;
-        } catch (Exception e) {
-            throw new RuntimeException("文件保存失败", e);
-        }
+        return filePathUtil.saveFile(file, path);
     }
 
 
@@ -171,10 +157,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
 //                + dbPath.replace("upload/", "");
 //    }
 private String toFileUrl(String dbPath) {
-    if (dbPath == null || dbPath.isEmpty()) {
-        return null;
-    }
-    return baseUrl + "/files/" + dbPath;
+    return filePathUtil.toFileUrl(dbPath);
 }
 
 }

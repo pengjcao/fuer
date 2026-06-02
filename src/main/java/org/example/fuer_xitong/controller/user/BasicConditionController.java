@@ -5,6 +5,7 @@ import org.example.fuer_xitong.pojo.dto.BasicConditionDTO;
 import org.example.fuer_xitong.service.BasicConditionService;
 import org.example.fuer_xitong.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,9 +16,18 @@ import java.util.List;
 public class BasicConditionController {
     @Autowired
     private  BasicConditionService basicConditionService;
-    @PostMapping("/report")
-    public Result reportBasicCondition(@RequestBody BasicConditionDTO dto) {
 
+    @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Result reportBasicConditionJson(@RequestBody BasicConditionDTO dto) {
+        return reportBasicCondition(dto);
+    }
+
+    @PostMapping(value = "/report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Result reportBasicConditionForm(@ModelAttribute BasicConditionDTO dto) {
+        return reportBasicCondition(dto);
+    }
+
+    private Result reportBasicCondition(BasicConditionDTO dto) {
         basicConditionService.reportBasicCondition(dto);
         return Result.success("基础条件填报成功");
     }
