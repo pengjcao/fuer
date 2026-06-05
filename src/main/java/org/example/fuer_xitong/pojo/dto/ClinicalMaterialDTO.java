@@ -2,13 +2,16 @@ package org.example.fuer_xitong.pojo.dto;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
 @Data
 public class ClinicalMaterialDTO {
     private String projectName;
-    private MultipartFile nmpaApproval;
-    private MultipartFile delegationTable;
-    private MultipartFile trainingRecord;
-    private MultipartFile processFiles;
-    private MultipartFile completionFiles;
-    private MultipartFile otherFiles;
+    private List<MultipartFile> nmpaApproval;
+    private List<MultipartFile> delegationTable;
+    private List<MultipartFile> trainingRecord;
+    private List<MultipartFile> processFiles;
+    private List<MultipartFile> completionFiles;
+    private List<MultipartFile> otherFiles;
 }

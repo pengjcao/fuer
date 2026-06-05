@@ -12,5 +12,8 @@ public class InstitutionFileSystemVO {
     private String systemName;
     private String description;
     private Boolean isFixed;
+    private String keshi;
+    private String groupPath;
+    private String createdBy;
     private LocalDateTime createdTime;
 }

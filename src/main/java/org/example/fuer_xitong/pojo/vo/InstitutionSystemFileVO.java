@@ -22,6 +22,12 @@ public class InstitutionSystemFileVO {
     /** 创建人 */
     private String createdBy;
 
+    /** 科室 */
+    private String keshi;
+
+    /** 专业组路径 */
+    private String groupPath;
+
     /** 是否失效 */
     private Long isActive;
 

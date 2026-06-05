@@ -12,5 +12,6 @@ public class InstitutionSystemFileHistoryVO {
     private String currentPath;  // 文件路径
     private String operatedBy;   // 操作人
     private String remark;       // 操作备注
+    private String versionType;   // 当前版本 / 历史版本
     private LocalDateTime createdTime; // 操作时间
 }

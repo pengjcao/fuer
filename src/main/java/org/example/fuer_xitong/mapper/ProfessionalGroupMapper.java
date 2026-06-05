@@ -2,6 +2,7 @@ package org.example.fuer_xitong.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.example.fuer_xitong.pojo.minimal.PiInfoMinimalDTO;
+import org.example.fuer_xitong.pojo.vo.ClinicalMaterialVO;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
 import org.example.fuer_xitong.pojo.vo.PiInfoHistoryVO;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
@@ -104,6 +105,19 @@ public interface ProfessionalGroupMapper {
     List<PiInfoVO> getByIdAndProfessionalList(
             @Param("id") String id,
             @Param("professional") String professional
+    );
+
+    void insertClinicalMaterial(
+            @Param("piInfoId") Integer piInfoId,
+            @Param("material") ClinicalMaterialVO material
+    );
+
+    List<ClinicalMaterialVO> selectClinicalMaterialsByPiInfoId(
+            @Param("piInfoId") Integer piInfoId
+    );
+
+    List<ClinicalMaterialVO> selectClinicalMaterialsByPiInfoIds(
+            @Param("piInfoIds") List<Integer> piInfoIds
     );
 
 

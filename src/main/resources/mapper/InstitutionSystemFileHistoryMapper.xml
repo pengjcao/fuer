@@ -46,7 +46,7 @@
 
     <!-- ================== 删除某个文件体系下的所有文件 ================== -->
     <delete id="deleteBySystemId">
-        DELETE FROM institution_system_file
+        DELETE FROM institution_system_file_history
         WHERE system_id = #{systemId}
     </delete>
 

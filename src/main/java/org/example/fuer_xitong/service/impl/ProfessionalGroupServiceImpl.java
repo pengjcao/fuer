@@ -6,6 +6,7 @@ import org.example.fuer_xitong.pojo.dto.ClinicalMaterialDTO;
 import org.example.fuer_xitong.pojo.dto.PiInfoDTO;
 import org.example.fuer_xitong.pojo.minimal.PiInfoMinimalDTO;
 import org.example.fuer_xitong.pojo.dto.ProfessionalGroupAddDTO;
+import org.example.fuer_xitong.pojo.vo.ClinicalMaterialVO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 import org.example.fuer_xitong.service.ProfessionalGroupService;
@@ -99,18 +100,49 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
 
         // ================== 5. 保存临床材料 ==================
         String clinicalRootPath = null;
+        List<ClinicalMaterialVO> clinicalMaterialList = new ArrayList<>();
         if (Boolean.TRUE.equals(dto.getClinicalParticipation())
                 && dto.getClinicalMaterials() != null
                 && !dto.getClinicalMaterials().isEmpty()) {
 
-            clinicalRootPath = baseDir + "clinical/";
+            clinicalRootPath = filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical");
+            int materialIndex = 1;
             for (ClinicalMaterialDTO cm : dto.getClinicalMaterials()) {
-                saveFile(cm.getNmpaApproval(), clinicalRootPath);
-                saveFile(cm.getDelegationTable(), clinicalRootPath);
-                saveFile(cm.getTrainingRecord(), clinicalRootPath);
-                saveFile(cm.getProcessFiles(), clinicalRootPath);
-                saveFile(cm.getCompletionFiles(), clinicalRootPath);
-                saveFile(cm.getOtherFiles(), clinicalRootPath);
+                if (!hasClinicalMaterial(cm)) {
+                    materialIndex++;
+                    continue;
+                }
+
+                String projectDirName = "project-" + materialIndex;
+                ClinicalMaterialVO material = new ClinicalMaterialVO();
+                material.setProjectName(cm.getProjectName());
+                material.setNmpaApprovalPath(saveFiles(
+                        cm.getNmpaApproval(),
+                        filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "nmpaApproval")
+                ));
+                material.setDelegationTablePath(saveFiles(
+                        cm.getDelegationTable(),
+                        filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "delegationTable")
+                ));
+                material.setTrainingRecordPath(saveFiles(
+                        cm.getTrainingRecord(),
+                        filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "trainingRecord")
+                ));
+                material.setProcessFilesPath(saveFiles(
+                        cm.getProcessFiles(),
+                        filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "processFiles")
+                ));
+                material.setCompletionFilesPath(saveFiles(
+                        cm.getCompletionFiles(),
+                        filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "completionFiles")
+                ));
+                material.setOtherFilesPath(saveFiles(
+                        cm.getOtherFiles(),
+                        filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "otherFiles")
+                ));
+
+                clinicalMaterialList.add(material);
+                materialIndex++;
             }
         }
 
@@ -132,6 +164,10 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
                 recordTypesStr,            // 专业组备案类型
                 hospitalAreasStr           // 所属院区
         );
+
+        for (ClinicalMaterialVO material : clinicalMaterialList) {
+            professionalGroupMapper.insertClinicalMaterial(piInfoId, material);
+        }
     }
 
 
@@ -148,6 +184,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
             result.add(convertFilePaths(vo));
         }
 
+        fillClinicalMaterials(result);
         return result;
     }
 //
@@ -164,6 +201,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
             result.add(convertFilePaths(vo));
         }
 
+        fillClinicalMaterials(result);
         return result;
     }
 
@@ -226,6 +264,102 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         vo.setGcpCertificatePath(toFileUrl(vo.getGcpCertificatePath()));
         vo.setReportFilePath(toFileUrl(vo.getReportFilePath()));
         return vo;
+    }
+
+    private void fillClinicalMaterials(List<PiInfoVO> piList) {
+        if (CollectionUtils.isEmpty(piList)) {
+            return;
+        }
+
+        List<Integer> piInfoIds = piList.stream()
+                .map(PiInfoVO::getPiInfoId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        if (piInfoIds.isEmpty()) {
+            return;
+        }
+
+        List<ClinicalMaterialVO> materials =
+                professionalGroupMapper.selectClinicalMaterialsByPiInfoIds(piInfoIds);
+        if (CollectionUtils.isEmpty(materials)) {
+            for (PiInfoVO pi : piList) {
+                pi.setClinicalMaterials(Collections.emptyList());
+            }
+            return;
+        }
+
+        Map<Integer, List<ClinicalMaterialVO>> materialMap = materials.stream()
+                .map(this::convertClinicalMaterialPaths)
+                .collect(Collectors.groupingBy(
+                        ClinicalMaterialVO::getPiInfoId,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        for (PiInfoVO pi : piList) {
+            pi.setClinicalMaterials(
+                    materialMap.getOrDefault(pi.getPiInfoId(), Collections.emptyList())
+            );
+        }
+    }
+
+    private ClinicalMaterialVO convertClinicalMaterialPaths(ClinicalMaterialVO material) {
+        material.setNmpaApprovalPaths(toFileUrls(material.getNmpaApprovalPath()));
+        material.setDelegationTablePaths(toFileUrls(material.getDelegationTablePath()));
+        material.setTrainingRecordPaths(toFileUrls(material.getTrainingRecordPath()));
+        material.setProcessFilesPaths(toFileUrls(material.getProcessFilesPath()));
+        material.setCompletionFilesPaths(toFileUrls(material.getCompletionFilesPath()));
+        material.setOtherFilesPaths(toFileUrls(material.getOtherFilesPath()));
+        return material;
+    }
+
+    private List<String> toFileUrls(String pathText) {
+        if (!StringUtils.hasText(pathText)) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(pathText.split("\\R"))
+                .filter(StringUtils::hasText)
+                .map(this::toFileUrl)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toList());
+    }
+
+    private boolean hasClinicalMaterial(ClinicalMaterialDTO cm) {
+        if (cm == null) {
+            return false;
+        }
+        return StringUtils.hasText(cm.getProjectName())
+                || hasFiles(cm.getNmpaApproval())
+                || hasFiles(cm.getDelegationTable())
+                || hasFiles(cm.getTrainingRecord())
+                || hasFiles(cm.getProcessFiles())
+                || hasFiles(cm.getCompletionFiles())
+                || hasFiles(cm.getOtherFiles());
+    }
+
+    private boolean hasFiles(List<MultipartFile> files) {
+        if (CollectionUtils.isEmpty(files)) {
+            return false;
+        }
+        return files.stream().anyMatch(file -> file != null && !file.isEmpty());
+    }
+
+    private String saveFiles(List<MultipartFile> files, String path) {
+        if (!hasFiles(files)) {
+            return null;
+        }
+
+        List<String> savedPaths = files.stream()
+                .filter(file -> file != null && !file.isEmpty())
+                .map(file -> saveFile(file, path))
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toList());
+
+        if (savedPaths.isEmpty()) {
+            return null;
+        }
+        return String.join("\n", savedPaths);
     }
     /**
      * 磁盘路径 -> 前端可访问 URL

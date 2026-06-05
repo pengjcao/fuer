@@ -40,9 +40,38 @@
             system_name      AS systemName,
             is_fixed          As isFixed,
             description,
+            keshi,
+            group_path       AS groupPath,
+            created_by       AS createdBy,
             created_time     AS createdTime
         FROM institution_file_system
         ORDER BY created_time DESC
+
+    </select>
+
+    <select id="selectInstitutionReadonlyList"
+            resultType="org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO">
+
+        SELECT
+            fs.id,
+            fs.system_code   AS systemCode,
+            fs.system_name   AS systemName,
+            fs.is_fixed      AS isFixed,
+            fs.description,
+            fs.keshi,
+            fs.group_path    AS groupPath,
+            fs.created_by    AS createdBy,
+            fs.created_time  AS createdTime
+        FROM institution_file_system fs
+        LEFT JOIN user u ON u.ID = fs.created_by
+        WHERE
+            fs.is_fixed = 1
+            OR fs.keshi IS NULL
+            OR (
+                fs.group_path IS NULL
+                AND u.role > 1
+            )
+        ORDER BY fs.created_time DESC
 
     </select>
 
@@ -57,9 +86,39 @@
             system_name      AS systemName,
             is_fixed          As isFixed,
             description,
+            keshi,
+            group_path       AS groupPath,
+            created_by       AS createdBy,
             created_time     AS createdTime
         FROM institution_file_system
         WHERE keshi = #{keshi}
+        ORDER BY created_time DESC
+
+    </select>
+
+    <select id="selectByKeshiForCreator"
+            resultType="org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO">
+
+        SELECT
+            id,
+            system_code       AS systemCode,
+            system_name       AS systemName,
+            is_fixed          AS isFixed,
+            description,
+            keshi,
+            group_path        AS groupPath,
+            created_by        AS createdBy,
+            created_time      AS createdTime
+        FROM institution_file_system
+        WHERE
+            keshi IS NULL
+            OR (
+                keshi = #{keshi}
+                AND (
+                    is_fixed = 1
+                    OR created_by = #{createdBy}
+                )
+            )
         ORDER BY created_time DESC
 
     </select>
@@ -82,7 +141,9 @@
             system_name   AS systemName,
             is_fixed      AS isFixed,
             description,
+            keshi,
             group_path    AS groupPath,
+            created_by    AS createdBy,
             created_time AS createdTime
         FROM institution_file_system
         WHERE
@@ -100,6 +161,55 @@
 
     </select>
 
+
+    <select id="selectByKeshiAndGroupPathForCreator"
+            resultType="org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO">
+
+        SELECT
+            id,
+            system_code   AS systemCode,
+            system_name   AS systemName,
+            is_fixed      AS isFixed,
+            description,
+            keshi,
+            group_path    AS groupPath,
+            created_by    AS createdBy,
+            created_time  AS createdTime
+        FROM institution_file_system
+        WHERE
+            keshi IS NULL
+            OR (
+                keshi = #{keshi}
+                AND (
+                    group_path IS NULL
+                    OR group_path = #{GroupPath}
+                )
+                AND (
+                    is_fixed = 1
+                    OR created_by = #{createdBy}
+                )
+            )
+        ORDER BY created_time DESC
+
+    </select>
+
+    <select id="selectById"
+            resultType="org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO">
+
+        SELECT
+            id,
+            system_code   AS systemCode,
+            system_name   AS systemName,
+            is_fixed      AS isFixed,
+            description,
+            keshi,
+            group_path    AS groupPath,
+            created_by    AS createdBy,
+            created_time  AS createdTime
+        FROM institution_file_system
+        WHERE id = #{systemId}
+
+    </select>
 
 
 

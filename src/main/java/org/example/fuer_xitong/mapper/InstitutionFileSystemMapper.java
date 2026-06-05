@@ -14,6 +14,8 @@ public interface InstitutionFileSystemMapper {
 
     List<InstitutionFileSystemVO> selectList();
 
+    List<InstitutionFileSystemVO> selectInstitutionReadonlyList();
+
 
     /**
      * 根据 systemId 删除文件体系
@@ -24,4 +26,13 @@ public interface InstitutionFileSystemMapper {
     List<InstitutionFileSystemVO> selectByKeshi(@Param("keshi") String keshi);
 
     List<InstitutionFileSystemVO> selectByKeshiAndGroupPath(@Param("keshi") String keshi , @Param("GroupPath") String GroupPath);
+
+    List<InstitutionFileSystemVO> selectByKeshiForCreator(@Param("keshi") String keshi,
+                                                          @Param("createdBy") String createdBy);
+
+    List<InstitutionFileSystemVO> selectByKeshiAndGroupPathForCreator(@Param("keshi") String keshi,
+                                                                      @Param("GroupPath") String GroupPath,
+                                                                      @Param("createdBy") String createdBy);
+
+    InstitutionFileSystemVO selectById(@Param("systemId") Long systemId);
 }

@@ -196,6 +196,63 @@
     </select>
 
 
+    <insert id="insertClinicalMaterial">
+        INSERT INTO pi_clinical_material (
+            pi_info_id,
+            project_name,
+            nmpa_approval_paths,
+            delegation_table_paths,
+            training_record_paths,
+            process_files_paths,
+            completion_files_paths,
+            other_files_paths
+        ) VALUES (
+            #{piInfoId},
+            #{material.projectName},
+            #{material.nmpaApprovalPath},
+            #{material.delegationTablePath},
+            #{material.trainingRecordPath},
+            #{material.processFilesPath},
+            #{material.completionFilesPath},
+            #{material.otherFilesPath}
+        )
+    </insert>
+
+    <select id="selectClinicalMaterialsByPiInfoId" resultType="org.example.fuer_xitong.pojo.vo.ClinicalMaterialVO">
+        SELECT
+            id,
+            pi_info_id AS piInfoId,
+            project_name AS projectName,
+            nmpa_approval_paths AS nmpaApprovalPath,
+            delegation_table_paths AS delegationTablePath,
+            training_record_paths AS trainingRecordPath,
+            process_files_paths AS processFilesPath,
+            completion_files_paths AS completionFilesPath,
+            other_files_paths AS otherFilesPath
+        FROM pi_clinical_material
+        WHERE pi_info_id = #{piInfoId}
+        ORDER BY id ASC
+    </select>
+
+    <select id="selectClinicalMaterialsByPiInfoIds" resultType="org.example.fuer_xitong.pojo.vo.ClinicalMaterialVO">
+        SELECT
+            id,
+            pi_info_id AS piInfoId,
+            project_name AS projectName,
+            nmpa_approval_paths AS nmpaApprovalPath,
+            delegation_table_paths AS delegationTablePath,
+            training_record_paths AS trainingRecordPath,
+            process_files_paths AS processFilesPath,
+            completion_files_paths AS completionFilesPath,
+            other_files_paths AS otherFilesPath
+        FROM pi_clinical_material
+        WHERE pi_info_id IN
+        <foreach collection="piInfoIds" item="piInfoId" open="(" separator="," close=")">
+            #{piInfoId}
+        </foreach>
+        ORDER BY pi_info_id ASC, id ASC
+    </select>
+
 
     <select id="selectHistoryById"
             parameterType="int"

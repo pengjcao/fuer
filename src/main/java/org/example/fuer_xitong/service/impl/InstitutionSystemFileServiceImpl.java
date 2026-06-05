@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,9 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
 
     @Autowired
     private InstitutionSystemFileMapper institutionSystemFileMapper;
+
+    @Autowired
+    private org.example.fuer_xitong.mapper.InstitutionFileSystemMapper institutionFileSystemMapper;
 
     @Autowired
     private InstitutionSystemFileHistoryMapper institutionSystemFileHistoryMapper;
@@ -50,20 +54,18 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
             return;
         }
 
-        // 2️⃣ 计算最终使用的科室
-        String finalKeshi;
-        if (keshi != null && !keshi.trim().isEmpty()) {
-            finalKeshi = keshi.trim();
-        } else {
-            finalKeshi = userMapper.selectKeshiByJobNumber(operatorId);
+        org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO system = institutionFileSystemMapper.selectById(systemId);
+        if (system == null) {
+            throw new RuntimeException("文件体系不存在");
         }
+        assertCanUploadToSystem(system, keshi, Grouppath, operatorId);
+
+        // 2️⃣ 计算最终使用的科室
+        String finalKeshi = resolveActionKeshi(keshi, system.getKeshi(), operatorId);
 
 
         // 3️⃣ 计算最终使用的专业组（可选）
-        String finalGroupPath = null;
-        if (Grouppath != null && !Grouppath.trim().isEmpty()) {
-            finalGroupPath = Grouppath.trim();
-        }
+        String finalGroupPath = firstText(Grouppath, system.getGroupPath());
         // 2️⃣ 体系级目录（不会再用自增ID作为目录）
         String baseDir = filePathUtil.buildUploadDir(
                 finalKeshi,
@@ -115,6 +117,25 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
         if (systemId == null) {
             throw new IllegalArgumentException("systemId 不能为空");
         }
+        org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO system = institutionFileSystemMapper.selectById(systemId);
+        if (system == null) {
+            throw new RuntimeException("文件体系不存在");
+        }
+        String operatorId = BaseContext.getCurrentId();
+        if (!canUseSystemInProfessionalGroup(system, keshi, Grouppath, operatorId)) {
+            assertCanReadSystem(system);
+        }
+
+        boolean institutionReadonlySystem = isInstitutionReadonlySystem(system);
+        if (!hasText(keshi) && institutionReadonlySystem) {
+            // 机构文件体系入口不按研究者科室过滤，否则看不到机构级文件。
+            List<InstitutionSystemFileVO> list = institutionSystemFileMapper.selectBySystemId(systemId);
+            return convertFilePaths(list);
+        }
+
+        keshi = resolveActionKeshi(keshi, system.getKeshi(), operatorId);
+        Grouppath = firstText(Grouppath, system.getGroupPath());
+
         if(keshi!=null && !keshi.trim().isEmpty()) {
             // 查询数据库
             List<InstitutionSystemFileVO> aaa = institutionSystemFileMapper.selectByCondition(systemId,keshi,Grouppath);
@@ -150,6 +171,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
         if (current == null) {
             throw new RuntimeException("文件不存在");
         }
+        assertCanManageFile(current);
 
         // 2️⃣ 写入历史表（保留旧文件名和路径）
         InstitutionSystemFileHistoryDTO historyDTO = new InstitutionSystemFileHistoryDTO();
@@ -162,9 +184,12 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
         institutionSystemFileHistoryMapper.insertHistory(historyDTO);
 
 
-        String keshi = userMapper.selectKeshiByJobNumber(operatorId);
+        String keshi = hasText(current.getKeshi())
+                ? current.getKeshi()
+                : userMapper.selectKeshiByJobNumber(operatorId);
+        String groupPath = trimToNull(current.getGroupPath());
         // 3️⃣ 保存新文件（复用你的 saveFile）
-        String baseDir = filePathUtil.buildUploadDir(keshi, String.valueOf(current.getSystemId()));
+        String baseDir = filePathUtil.buildUploadDir(keshi, String.valueOf(current.getSystemId()), groupPath);
 
         File baseFolder = new File(baseDir);
         if (!baseFolder.exists()) {
@@ -194,6 +219,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
         if (file == null) {
             throw new RuntimeException("文件不存在");
         }
+        assertCanManageFile(file);
 
         // 标记为失效
         institutionSystemFileMapper.markAsInactive(fileId);
@@ -208,19 +234,41 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
             throw new IllegalArgumentException("fileId 不能为空");
         }
 
+        InstitutionSystemFileVO current = institutionSystemFileMapper.selectById(fileId);
+        if (current == null) {
+            throw new RuntimeException("文件不存在");
+        }
+        assertCanReadFile(current);
+
         // 查询历史记录列表
         List<InstitutionSystemFileHistoryVO> list =
                 institutionSystemFileHistoryMapper.selectByFileId(fileId);
 
         // 转换路径成前端可访问 URL
-        return list.stream()
+        List<InstitutionSystemFileHistoryVO> result = new ArrayList<>();
+        result.add(buildCurrentHistoryVO(current));
+        result.addAll(list.stream()
                 .map(this::convertFilePath)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+        return result;
+    }
+
+    private InstitutionSystemFileHistoryVO buildCurrentHistoryVO(InstitutionSystemFileVO current) {
+        InstitutionSystemFileHistoryVO vo = new InstitutionSystemFileHistoryVO();
+        vo.setId(0L);
+        vo.setFileName(current.getFileName());
+        vo.setCurrentPath(toFileUrl(current.getCurrentPath()));
+        vo.setOperatedBy(current.getCreatedBy());
+        vo.setRemark("当前版本");
+        vo.setVersionType("当前版本");
+        vo.setCreatedTime(current.getUpdatedTime() != null ? current.getUpdatedTime() : current.getCreatedTime());
+        return vo;
     }
 
     private InstitutionSystemFileHistoryVO convertFilePath(InstitutionSystemFileHistoryVO vo) {
         if (vo == null) return null;
         vo.setCurrentPath(toFileUrl(vo.getCurrentPath()));
+        vo.setVersionType("历史版本");
         return vo;
     }
 
@@ -240,6 +288,7 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
         if (file == null) {
             throw new RuntimeException("文件不存在");
         }
+        assertCanManageFile(file);
 
         // 2️⃣ 删除物理文件
         DeletePhysicalFile.deleteFile(file.getCurrentPath());
@@ -298,6 +347,162 @@ public class InstitutionSystemFileServiceImpl implements InstitutionSystemFileSe
         return filePathUtil.toFileUrl(physicalPath);
     }
 
+    private void assertCanUploadToSystem(org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO system,
+                                         String requestKeshi,
+                                         String requestGroupPath,
+                                         String operatorId) {
+        Integer role = BaseContext.getCurrentRole();
+        if (role != null && role > 1) {
+            return;
+        }
+
+        if (canUseSystemInProfessionalGroup(system, requestKeshi, requestGroupPath, operatorId)) {
+            return;
+        }
+
+        if (system.getCreatedBy() == null || !system.getCreatedBy().equals(operatorId)) {
+            throw new RuntimeException("只能上传到自己创建的文件体系");
+        }
+    }
+
+    private void assertCanReadSystem(org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO system) {
+        Integer role = BaseContext.getCurrentRole();
+        if (role != null && role > 1) {
+            return;
+        }
+
+        if (isInstitutionReadonlySystem(system)) {
+            return;
+        }
+
+        String operatorId = BaseContext.getCurrentId();
+        if (system.getCreatedBy() == null || !system.getCreatedBy().equals(operatorId)) {
+            throw new RuntimeException("无权限查看该文件体系");
+        }
+    }
+
+    private void assertCanManageFile(InstitutionSystemFileVO file) {
+        Integer role = BaseContext.getCurrentRole();
+        if (role != null && role > 1) {
+            return;
+        }
+
+        String operatorId = BaseContext.getCurrentId();
+        if (isResearcherProfessionalGroupFile(file, operatorId)) {
+            return;
+        }
+
+        if (file.getCreatedBy() == null || !file.getCreatedBy().equals(operatorId)) {
+            throw new RuntimeException("只能管理自己上传的文件");
+        }
+    }
+
+    private void assertCanReadFile(InstitutionSystemFileVO file) {
+        Integer role = BaseContext.getCurrentRole();
+        if (role != null && role > 1) {
+            return;
+        }
+
+        org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO system =
+                institutionFileSystemMapper.selectById(file.getSystemId());
+        if (system != null && isInstitutionReadonlySystem(system)) {
+            return;
+        }
+
+        String operatorId = BaseContext.getCurrentId();
+        if (isResearcherProfessionalGroupFile(file, operatorId)) {
+            return;
+        }
+
+        if (file.getCreatedBy() == null || !file.getCreatedBy().equals(operatorId)) {
+            throw new RuntimeException("无权限查看该文件历史");
+        }
+    }
+
+    private boolean canUseSystemInProfessionalGroup(org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO system,
+                                                    String requestKeshi,
+                                                    String requestGroupPath,
+                                                    String operatorId) {
+        Integer role = BaseContext.getCurrentRole();
+        if (role != null && role > 1) {
+            return true;
+        }
+        if (system == null || !hasText(requestKeshi) || !hasText(requestGroupPath)) {
+            return false;
+        }
+
+        String currentKeshi = userMapper.selectKeshiByJobNumber(operatorId);
+        if (!hasText(currentKeshi) || !requestKeshi.trim().equals(currentKeshi.trim())) {
+            return false;
+        }
+
+        String systemKeshi = trimToNull(system.getKeshi());
+        String systemGroupPath = trimToNull(system.getGroupPath());
+        if (systemKeshi == null) {
+            return true;
+        }
+        if (!systemKeshi.equals(currentKeshi.trim())) {
+            return false;
+        }
+        return systemGroupPath == null || systemGroupPath.equals(requestGroupPath.trim());
+    }
+
+    private boolean isResearcherProfessionalGroupFile(InstitutionSystemFileVO file, String operatorId) {
+        if (file == null || !hasText(file.getKeshi()) || !hasText(file.getGroupPath())) {
+            return false;
+        }
+
+        String currentKeshi = userMapper.selectKeshiByJobNumber(operatorId);
+        return hasText(currentKeshi) && file.getKeshi().trim().equals(currentKeshi.trim());
+    }
+
+    private boolean isInstitutionReadonlySystem(org.example.fuer_xitong.pojo.vo.InstitutionFileSystemVO system) {
+        if (system == null) {
+            return false;
+        }
+        if (Boolean.TRUE.equals(system.getIsFixed()) || !hasText(system.getKeshi())) {
+            return true;
+        }
+        if (hasText(system.getGroupPath())) {
+            return false;
+        }
+        Integer creatorRole = system.getCreatedBy() == null ? null : userMapper.getRoleBy(system.getCreatedBy());
+        return creatorRole != null && creatorRole > 1;
+    }
+
+    private String resolveActionKeshi(String requestKeshi, String systemKeshi, String operatorId) {
+        Integer role = BaseContext.getCurrentRole();
+        String currentKeshi = userMapper.selectKeshiByJobNumber(operatorId);
+
+        if (role != null && role > 1) {
+            String resolved = firstText(requestKeshi, systemKeshi);
+            return hasText(resolved) ? resolved : currentKeshi;
+        }
+
+        if (hasText(requestKeshi) && !requestKeshi.trim().equals(currentKeshi)) {
+            throw new RuntimeException("无权限操作其他科室文件");
+        }
+
+        return currentKeshi;
+    }
+
+    private String firstText(String first, String second) {
+        if (hasText(first)) {
+            return first.trim();
+        }
+        if (hasText(second)) {
+            return second.trim();
+        }
+        return null;
+    }
+
+    private String trimToNull(String value) {
+        return hasText(value) ? value.trim() : null;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
 
 
 
