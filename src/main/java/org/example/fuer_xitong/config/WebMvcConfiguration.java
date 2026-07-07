@@ -53,12 +53,15 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
         // 新增：映射磁盘文件
         // 文件映射
+        String[] fileResourceLocations = new String[]{
+                filePathUtil.getUploadRootLocation(),
+                filePathUtil.getLegacyUploadRootLocation(),
+                filePathUtil.getNestedUploadRootLocation()
+        };
         registry.addResourceHandler("/files/**")
-                .addResourceLocations(
-                        filePathUtil.getUploadRootLocation(),
-                        filePathUtil.getLegacyUploadRootLocation(),
-                        filePathUtil.getNestedUploadRootLocation()
-                );
+                .addResourceLocations(fileResourceLocations);
+        registry.addResourceHandler("/api/files/**")
+                .addResourceLocations(fileResourceLocations);
     }
 
 }

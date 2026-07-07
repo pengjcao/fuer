@@ -23,4 +23,8 @@ public interface BasicConditionMapper {
 
     List<BasicConditionDTO> selectByKeshi(String keshi);
 
+    BasicConditionDTO selectById(@Param("id") Long id);
+
+    void deleteById(@Param("id") Long id);
+
 }

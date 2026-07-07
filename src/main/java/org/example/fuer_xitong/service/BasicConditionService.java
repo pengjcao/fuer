@@ -18,4 +18,6 @@ public interface BasicConditionService {
      * @return 基础条件信息
      */
     List<BasicConditionDTO> getBasicConditionDetail(String keshi);
+
+    void deleteBasicCondition(Long id);
 }

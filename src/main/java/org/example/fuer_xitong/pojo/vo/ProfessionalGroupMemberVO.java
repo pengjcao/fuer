@@ -20,6 +20,8 @@ public class ProfessionalGroupMemberVO {
     /** 人员信息 */
     private String personType;
     private String name;
+    private String academicPosition;
+    private String talentTitle;
 
     /** 专业组任职（数据库原始字段）*/
     private String roles;   // <- 先用 String 接收

@@ -97,6 +97,8 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
                 dto.getGroupPath(),
                 dto.getPersonType(),
                 dto.getName(),
+                dto.getAcademicPosition(),
+                dto.getTalentTitle(),
                 rolesStr,
                 dto.getResumeText(),
                 dbPaths[0], // resumeFilePath

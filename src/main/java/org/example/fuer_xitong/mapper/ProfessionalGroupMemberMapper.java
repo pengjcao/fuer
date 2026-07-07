@@ -15,6 +15,8 @@ public interface ProfessionalGroupMemberMapper {
             @Param("groupPath") String groupPath,
             @Param("personType") String personType,
             @Param("name") String name,
+            @Param("academicPosition") String academicPosition,
+            @Param("talentTitle") String talentTitle,
             @Param("roles") String roles,
             @Param("resumeText") String resumeText,
             @Param("resumeFilePath") String resumeFilePath,

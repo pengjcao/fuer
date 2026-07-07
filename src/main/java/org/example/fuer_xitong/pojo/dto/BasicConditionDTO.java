@@ -24,16 +24,22 @@ public class BasicConditionDTO {
     /**
      * 床位数
      */
+    private Integer bedYear;
+
     private Integer bedCount;
 
     /**
      * 住院人数（人次/年）
      */
+    private Integer inpatientYear;
+
     private Integer inpatientCount;
 
     /**
      * 平均日门急诊量（人次/日）
      */
+    private Integer avgDailyOutpatientYear;
+
     private Integer avgDailyOutpatientCount;
 
     /**

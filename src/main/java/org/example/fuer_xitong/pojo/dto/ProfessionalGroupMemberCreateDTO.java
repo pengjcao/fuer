@@ -18,6 +18,8 @@ public class ProfessionalGroupMemberCreateDTO {
     /** 人员基本信息 */
     private String personType;   // 研究医生 / 研究护士 / 其他
     private String name;
+    private String academicPosition;
+    private String talentTitle;
 
     /** 专业组任职（多选，List<String> 接收） */
     private List<String> roles;

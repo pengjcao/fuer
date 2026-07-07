@@ -8,10 +8,11 @@ import org.example.fuer_xitong.service.impl.ProfessionalGroupServiceImpl;
 import org.example.fuer_xitong.service.impl.UserServiceImpl;
 import org.example.fuer_xitong.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class UserApprovalController {
     @PostMapping("/drug-admin-record-time")
     public Result fillDrugAdminRecordTime(
             @RequestParam int piInfoId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime recordTime
+            @RequestParam String recordTime
     ) {
         int role =BaseContext.getCurrentRole();
         // 1. 权限校验：只能机构办秘书
@@ -64,8 +65,21 @@ public class UserApprovalController {
         }
 
 
-        professionalGroupService.fillDrugAdminRecordTime(piInfoId, recordTime);
-        return Result.success("药监局备案时间填写成功");
+        LocalDateTime parsedRecordTime = parseRecordDate(recordTime);
+        professionalGroupService.fillDrugAdminRecordTime(piInfoId, parsedRecordTime);
+        return Result.success("药监局备案日期填写成功");
+    }
+
+    private LocalDateTime parseRecordDate(String recordTime) {
+        if (recordTime == null || recordTime.trim().isEmpty()) {
+            throw new IllegalArgumentException("备案日期不能为空");
+        }
+
+        String trimmed = recordTime.trim();
+        if (trimmed.length() == 10) {
+            return LocalDate.parse(trimmed, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
+        }
+        return LocalDateTime.parse(trimmed, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
 

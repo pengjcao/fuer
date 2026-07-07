@@ -7,6 +7,7 @@ import org.example.fuer_xitong.mapper.UserMapper;
 import org.example.fuer_xitong.pojo.dto.BasicConditionDTO;
 import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.service.BasicConditionService;
+import org.example.fuer_xitong.utils.DeletePhysicalFile;
 import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,6 +61,24 @@ public class BasicConditionServiceImpl implements BasicConditionService {
             }
         }
         return list;
+    }
+
+    @Override
+    @Transactional
+    public void deleteBasicCondition(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id不能为空");
+        }
+
+        BasicConditionDTO dto = basicConditionMapper.selectById(id);
+        if (dto == null) {
+            throw new RuntimeException("基础条件记录不存在");
+        }
+
+        resolveReadableKeshi(dto.getKeshi());
+        DeletePhysicalFile.deleteFile(dto.getDepartmentPhotoPath());
+        DeletePhysicalFile.deleteFile(dto.getDepartmentIntroductionPath());
+        basicConditionMapper.deleteById(id);
     }
 
     private String saveFile(MultipartFile file, String path) {

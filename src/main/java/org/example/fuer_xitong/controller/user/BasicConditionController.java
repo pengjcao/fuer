@@ -43,4 +43,10 @@ public class BasicConditionController {
         List<BasicConditionDTO> list = basicConditionService.getBasicConditionDetail(keshi);
         return Result.success(list);
     }
+
+    @DeleteMapping("/delete")
+    public Result deleteBasicCondition(@RequestParam Long id) {
+        basicConditionService.deleteBasicCondition(id);
+        return Result.success("基础条件记录删除成功");
+    }
 }

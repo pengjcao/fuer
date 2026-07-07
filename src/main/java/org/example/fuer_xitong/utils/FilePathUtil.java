@@ -68,6 +68,7 @@ public class FilePathUtil {
 
         String normalized = normalizeSlash(dbPath.trim());
         String filesPrefix = "/files/";
+        String apiFilesPrefix = "/api/files/";
 
         if (normalized.startsWith("http://") || normalized.startsWith("https://")) {
             int filesIndex = normalized.indexOf(filesPrefix);
@@ -84,6 +85,10 @@ public class FilePathUtil {
 
         if (normalized.startsWith(filesPrefix)) {
             return buildFileUrl(normalized.substring(filesPrefix.length()));
+        }
+
+        if (normalized.startsWith(apiFilesPrefix)) {
+            return buildFileUrl(normalized.substring(apiFilesPrefix.length()));
         }
 
         String relativePath = toRelativePath(normalized);
@@ -202,6 +207,9 @@ public class FilePathUtil {
         }
 
         String prefix = trimEndSlash(baseUrl);
+        if (prefix.isEmpty()) {
+            prefix = "/api";
+        }
         return prefix + "/files/" + normalizedRelativePath;
     }
 }
