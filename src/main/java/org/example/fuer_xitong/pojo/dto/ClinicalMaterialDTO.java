@@ -14,4 +14,11 @@ public class ClinicalMaterialDTO {
     private List<MultipartFile> processFiles;
     private List<MultipartFile> completionFiles;
     private List<MultipartFile> otherFiles;
+
+    private List<String> existingNmpaApprovalPaths;
+    private List<String> existingDelegationTablePaths;
+    private List<String> existingTrainingRecordPaths;
+    private List<String> existingProcessFilesPaths;
+    private List<String> existingCompletionFilesPaths;
+    private List<String> existingOtherFilesPaths;
 }

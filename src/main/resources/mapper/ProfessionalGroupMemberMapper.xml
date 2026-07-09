@@ -15,7 +15,6 @@
             academic_position,
             talent_title,
             roles,
-            resume_text,
             resume_file_path,
             gcp_cert_path,
             practice_cert_path,
@@ -30,7 +29,6 @@
                      #{academicPosition},
                      #{talentTitle},
                      #{roles},
-                     #{resumeText},
                      #{resumeFilePath},
                      #{gcpCertPath},
                      #{practiceCertPath},
@@ -54,7 +52,6 @@
             academic_position  AS academicPosition,
             talent_title       AS talentTitle,
             roles,
-            resume_text        AS resumeText,
             resume_file_path   AS resumeFileUrl,
             gcp_cert_path      AS gcpCertUrl,
             practice_cert_path AS practiceCertUrl,
@@ -66,6 +63,32 @@
         ORDER BY create_time DESC
 
     </select>
+
+    <select id="selectById"
+            resultType="org.example.fuer_xitong.pojo.vo.ProfessionalGroupMemberVO">
+        SELECT
+            id,
+            department_id      AS departmentId,
+            keshi,
+            group_path         AS groupPath,
+            person_type        AS personType,
+            name,
+            academic_position  AS academicPosition,
+            talent_title       AS talentTitle,
+            roles,
+            resume_file_path   AS resumeFileUrl,
+            gcp_cert_path      AS gcpCertUrl,
+            practice_cert_path AS practiceCertUrl,
+            create_by          AS createBy,
+            create_time        AS createTime
+        FROM professional_group_member
+        WHERE id = #{id}
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM professional_group_member
+        WHERE id = #{id}
+    </delete>
 
 
 </mapper>

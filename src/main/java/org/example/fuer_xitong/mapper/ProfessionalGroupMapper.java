@@ -59,6 +59,7 @@ public interface ProfessionalGroupMapper {
             @Param("clinicalParticipation") Integer clinicalParticipation,
             @Param("clinicalReason") String clinicalReason,
             @Param("clinicalRootPath") String clinicalRootPath,
+            @Param("shanchang") String shanchang,
             @Param("selfAssessmentReportPath") String selfAssessmentReportPath, // 新增
             @Param("recordTypes") String recordTypes,                             // 新增
             @Param("hospitalAreas") String hospitalAreas                          // 新增
@@ -70,8 +71,16 @@ public interface ProfessionalGroupMapper {
     @Select("""
         SELECT *
         FROM pi_info
-        WHERE apply_status = 'PENDING_APPROVAL'
-        ORDER BY submit_time DESC
+        WHERE apply_status IS NOT NULL
+        ORDER BY
+            CASE
+                WHEN apply_status = 'PENDING_APPROVAL' THEN 0
+                WHEN current_step = 4 AND drug_admin_record_time IS NULL THEN 1
+                WHEN drug_admin_record_time IS NOT NULL THEN 2
+                WHEN apply_status IN ('REJECT', 'REJECTED') THEN 3
+                ELSE 4
+            END,
+            submit_time DESC
     """)
     List<PiInfoVO> selectPendingApprovalVO();
 
@@ -95,8 +104,38 @@ public interface ProfessionalGroupMapper {
 
     PiInfoVO selectPiinfoById(@Param("piInfoId") int pi_info_id);
 
+    @Select("""
+        SELECT *
+        FROM pi_info
+        WHERE id = #{piId}
+        ORDER BY pi_info_id DESC
+    """)
+    List<PiInfoVO> selectPiInfoListByPiId(@Param("piId") String piId);
+
 
     int updatePiInfo(PiInfoVO pi);
+
+    int updatePiInfoForResubmit(
+            @Param("piInfoId") Integer piInfoId,
+            @Param("id") String id,
+            @Param("professional") String professional,
+            @Param("applyType") Integer applyType,
+            @Param("piPhotoPath") String piPhotoPath,
+            @Param("seniorTitleCertificatePath") String seniorTitleCertificatePath,
+            @Param("seniorTitleAppointmentPath") String seniorTitleAppointmentPath,
+            @Param("signedResumePath") String signedResumePath,
+            @Param("qualificationCertificatePath") String qualificationCertificatePath,
+            @Param("practiceCertificatePath") String practiceCertificatePath,
+            @Param("gcpCertificatePath") String gcpCertificatePath,
+            @Param("idCardCopyPath") String idCardCopyPath,
+            @Param("clinicalParticipation") Integer clinicalParticipation,
+            @Param("clinicalReason") String clinicalReason,
+            @Param("clinicalRootPath") String clinicalRootPath,
+            @Param("shanchang") String shanchang,
+            @Param("selfAssessmentReportPath") String selfAssessmentReportPath,
+            @Param("recordTypes") String recordTypes,
+            @Param("hospitalAreas") String hospitalAreas
+    );
 
 
     int insertApprovalLog(PiApprovalLogVO log);
@@ -111,6 +150,8 @@ public interface ProfessionalGroupMapper {
             @Param("piInfoId") Integer piInfoId,
             @Param("material") ClinicalMaterialVO material
     );
+
+    void deleteClinicalMaterialsByPiInfoId(@Param("piInfoId") Integer piInfoId);
 
     List<ClinicalMaterialVO> selectClinicalMaterialsByPiInfoId(
             @Param("piInfoId") Integer piInfoId
@@ -131,7 +172,8 @@ public interface ProfessionalGroupMapper {
      */
     @Update("""
         UPDATE pi_info
-        SET drug_admin_record_time = #{recordTime}
+        SET drug_admin_record_time = #{recordTime},
+            apply_status = 'RECORDED'
         WHERE pi_info_id = #{piInfoId}
     """)
     int updateDrugAdminRecordTime(

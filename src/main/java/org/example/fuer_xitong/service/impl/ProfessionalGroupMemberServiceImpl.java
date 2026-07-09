@@ -6,6 +6,7 @@ import org.example.fuer_xitong.pojo.entity.BaseContext;
 import org.example.fuer_xitong.pojo.vo.ProfessionalGroupMemberVO;
 import org.example.fuer_xitong.service.NoticeGroupService;
 import org.example.fuer_xitong.service.ProfessionalGroupMemberService;
+import org.example.fuer_xitong.utils.DeletePhysicalFile;
 import org.example.fuer_xitong.utils.FilePathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,29 +66,10 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
         if (!baseFolder.exists()) {
             baseFolder.mkdirs();
         }
-
         // 5️⃣ 遍历文件上传（每个文件 = 一条记录）
-        MultipartFile[] files = new MultipartFile[]{
-                dto.getResumeFile(),
-                dto.getGcpCertFile(),
-                dto.getPracticeCertFile()
-        };
-
-        String[] fileTypes = new String[]{"resume", "gcp", "practice"};
-        String[] fileNames = new String[]{"resumeFilePath", "gcpCertPath", "practiceCertPath"};
-        String[] dbPaths = new String[3];
-
-        for (int i = 0; i < files.length; i++) {
-            MultipartFile file = files[i];
-            if (file == null || file.isEmpty()) {
-                dbPaths[i] = null;
-                continue;
-            }
-
-            String filePath = saveFile(file, baseDir);
-            dbPaths[i] = filePath;
-            dbPaths[i] = filePath.replace("\\", "/");
-        }
+        String resumeFilePath = saveMemberFile(dto.getResumeFile(), baseDir);
+        String gcpCertPath = saveMemberFile(dto.getGcpCertFile(), baseDir);
+        String practiceCertPath = saveMemberFile(dto.getPracticeCertFile(), baseDir);
 
 
         // 6️⃣ 插入数据库
@@ -100,10 +82,9 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
                 dto.getAcademicPosition(),
                 dto.getTalentTitle(),
                 rolesStr,
-                dto.getResumeText(),
-                dbPaths[0], // resumeFilePath
-                dbPaths[1], // gcpCertPath
-                dbPaths[2], // practiceCertPath
+                resumeFilePath,
+                gcpCertPath,
+                practiceCertPath,
                 operatorId
         );
     }
@@ -149,6 +130,28 @@ public class ProfessionalGroupMemberServiceImpl implements ProfessionalGroupMemb
         return list;
     }
 
+    @Override
+    @Transactional
+    public void deleteMember(Integer id) {
+        if (id == null) {
+            throw new RuntimeException("研究团队成员ID不能为空");
+        }
+
+        ProfessionalGroupMemberVO member = professionalGroupMemberMapper.selectById(id);
+        if (member == null) {
+            throw new RuntimeException("研究团队成员不存在");
+        }
+
+        int rows = professionalGroupMemberMapper.deleteById(id);
+        if (rows <= 0) {
+            throw new RuntimeException("研究团队成员删除失败");
+        }
+
+        DeletePhysicalFile.deleteFile(member.getResumeFileUrl());
+        DeletePhysicalFile.deleteFile(member.getGcpCertUrl());
+        DeletePhysicalFile.deleteFile(member.getPracticeCertUrl());
+    }
+
 
 
 //    private String toFileUrl(String dbPath) {
@@ -166,6 +169,11 @@ private String toFileUrl(String dbPath) {
      */
     private String saveFile(MultipartFile file, String baseDir) {
         return filePathUtil.saveFile(file, baseDir);
+    }
+
+    private String saveMemberFile(MultipartFile file, String baseDir) {
+        String filePath = saveFile(file, baseDir);
+        return filePath == null ? null : filePath.replace("\\", "/");
     }
 
 }

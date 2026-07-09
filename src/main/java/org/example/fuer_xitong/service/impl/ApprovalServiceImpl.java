@@ -34,7 +34,7 @@ public class ApprovalServiceImpl implements ApprovalService {
             if (pi.getCurrentStep()+1 == 4) {
                 // 流程完成
                 pi.setCurrentStep(4);
-//                pi.setApplyStatus("APPROVE");
+                pi.setApplyStatus("APPROVED");
             } else {
                 // 推进下一步
                 pi.setCurrentStep(pi.getCurrentStep() + 1);

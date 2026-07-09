@@ -69,6 +69,7 @@
         SELECT
             ID,
             professional,
+            apply_type,
             pi_photo_path,
             senior_title_certificate_path,
             senior_title_appointment_path,
@@ -80,9 +81,14 @@
             shanchang,
             clinical_participation,
             clinical_reason,
+            clinical_root_path,
             apply_status,
             current_step,
             submit_time,
+            drug_admin_record_time,
+            record_types,
+            hospital_areas,
+            report_file_path,
             pi_info_id
         FROM pi_info
         WHERE  pi_info_id = #{piInfoId}
@@ -158,10 +164,38 @@
         clinical_participation = #{clinicalParticipation},
         clinical_reason = #{clinicalReason},
         clinical_root_path = #{clinicalRootPath},
+        shanchang = #{shanchang},
         report_file_path = #{selfAssessmentReportPath},  <!-- 新增 -->
         record_types = #{recordTypes},                               <!-- 新增 -->
         hospital_areas = #{hospitalAreas}                            <!-- 新增 -->
         WHERE pi_info_id = #{piInfoId}
+    </update>
+
+    <update id="updatePiInfoForResubmit">
+        UPDATE pi_info
+        SET
+            professional = #{professional},
+            apply_type = #{applyType},
+            pi_photo_path = #{piPhotoPath},
+            senior_title_certificate_path = #{seniorTitleCertificatePath},
+            senior_title_appointment_path = #{seniorTitleAppointmentPath},
+            signed_resume_path = #{signedResumePath},
+            qualification_certificate_path = #{qualificationCertificatePath},
+            practice_certificate_path = #{practiceCertificatePath},
+            gcp_certificate_path = #{gcpCertificatePath},
+            id_card_copy_path = #{idCardCopyPath},
+            clinical_participation = #{clinicalParticipation},
+            clinical_reason = #{clinicalReason},
+            clinical_root_path = #{clinicalRootPath},
+            shanchang = #{shanchang},
+            report_file_path = #{selfAssessmentReportPath},
+            record_types = #{recordTypes},
+            hospital_areas = #{hospitalAreas},
+            current_step = 1,
+            apply_status = 'PENDING_APPROVAL',
+            drug_admin_record_time = NULL
+        WHERE pi_info_id = #{piInfoId}
+          AND id = #{id}
     </update>
 
 
@@ -217,6 +251,11 @@
             #{material.otherFilesPath}
         )
     </insert>
+
+    <delete id="deleteClinicalMaterialsByPiInfoId">
+        DELETE FROM pi_clinical_material
+        WHERE pi_info_id = #{piInfoId}
+    </delete>
 
     <select id="selectClinicalMaterialsByPiInfoId" resultType="org.example.fuer_xitong.pojo.vo.ClinicalMaterialVO">
         SELECT

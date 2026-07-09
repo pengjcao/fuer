@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -97,6 +99,37 @@ public class FilePathUtil {
         }
 
         return buildFileUrl(relativePath);
+    }
+
+    public String toStoragePath(String fileUrlOrPath) {
+        if (fileUrlOrPath == null || fileUrlOrPath.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalized = normalizeSlash(fileUrlOrPath.trim());
+        if (normalized.startsWith("http://") || normalized.startsWith("https://")) {
+            int filesIndex = normalized.indexOf("/files/");
+            if (filesIndex >= 0) {
+                String relativePath = decodeUrlPath(normalized.substring(filesIndex + "/files/".length()));
+                return normalizeSlash(Paths.get(getEffectiveUploadPath()).resolve(relativePath).toString());
+            }
+            return normalized;
+        }
+
+        String filesPrefix = "/files/";
+        String apiFilesPrefix = "/api/files/";
+        if (normalized.startsWith(filesPrefix)) {
+            return normalizeSlash(Paths.get(getEffectiveUploadPath()).resolve(decodeUrlPath(normalized.substring(filesPrefix.length()))).toString());
+        }
+        if (normalized.startsWith(apiFilesPrefix)) {
+            return normalizeSlash(Paths.get(getEffectiveUploadPath()).resolve(decodeUrlPath(normalized.substring(apiFilesPrefix.length()))).toString());
+        }
+
+        return normalized;
+    }
+
+    private String decodeUrlPath(String path) {
+        return URLDecoder.decode(path, StandardCharsets.UTF_8);
     }
 
     public String getUploadRootLocation() {

@@ -27,6 +27,7 @@ public class PiInfoVO {
     private String shanchang;
     private Boolean clinicalParticipation;
     private String clinicalReason;
+    private String clinicalRootPath;
     private List<ClinicalMaterialVO> clinicalMaterials;
     // 审批信息
     private String applyStatus;

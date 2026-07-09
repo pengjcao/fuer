@@ -1,8 +1,10 @@
 package org.example.fuer_xitong.service.impl;
 
 import org.example.fuer_xitong.mapper.PiApprovalLogMapper;
+import org.example.fuer_xitong.mapper.ProfessionalGroupMapper;
 import org.example.fuer_xitong.pojo.vo.PiApprovalLogVO;
 import org.example.fuer_xitong.pojo.vo.PiApprovalProgressVO;
+import org.example.fuer_xitong.pojo.vo.PiInfoVO;
 import org.example.fuer_xitong.service.ApprovalLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,9 @@ public class ApprovalLogServiceImpl implements ApprovalLogService {
     @Autowired
     private PiApprovalLogMapper piApprovalLogMapper;
 
+    @Autowired
+    private ProfessionalGroupMapper professionalGroupMapper;
+
     @Override
     public List<PiApprovalProgressVO> getApprovalLogsByPiId(String piId) {
 
@@ -23,9 +28,11 @@ public class ApprovalLogServiceImpl implements ApprovalLogService {
             return Collections.emptyList();
         }
 
+        List<PiInfoVO> piInfoList = professionalGroupMapper.selectPiInfoListByPiId(piId);
+
         // 查询该研究者所有审批日志（按 pi_info_id DESC, current_step ASC 排序）
         List<PiApprovalLogVO> allLogs = piApprovalLogMapper.selectLogsByPiId(piId);
-        if (allLogs.isEmpty()) {
+        if ((piInfoList == null || piInfoList.isEmpty()) && allLogs.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -36,6 +43,19 @@ public class ApprovalLogServiceImpl implements ApprovalLogService {
         // 组装返回结构
         List<PiApprovalProgressVO> result = new ArrayList<>();
 
+        if (piInfoList != null && !piInfoList.isEmpty()) {
+            for (PiInfoVO piInfo : piInfoList) {
+                PiApprovalProgressVO vo = new PiApprovalProgressVO();
+                vo.setPiInfoId(piInfo.getPiInfoId());
+                vo.setCurrentStep(piInfo.getCurrentStep());
+                vo.setApplyStatus(piInfo.getApplyStatus());
+                vo.setDrugAdminRecordTime(piInfo.getDrugAdminRecordTime());
+                vo.setLogs(logMap.getOrDefault(piInfo.getPiInfoId(), Collections.emptyList()));
+                result.add(vo);
+            }
+            return result;
+        }
+
         for (Map.Entry<Integer, List<PiApprovalLogVO>> entry : logMap.entrySet()) {
             Integer piInfoId = entry.getKey();
             List<PiApprovalLogVO> logs = entry.getValue();
@@ -44,10 +64,17 @@ public class ApprovalLogServiceImpl implements ApprovalLogService {
             vo.setPiInfoId(piInfoId);
             vo.setLogs(logs);
 
-            // 取最新一条日志的 currentStep 和 applyStatus 作为申请的当前状态
+            // 顶层状态取 pi_info 的真实当前状态，避免中间节点同意被误判为整体通过。
             PiApprovalLogVO latestLog = logs.get(logs.size() - 1);
-            vo.setCurrentStep(latestLog.getCurrentStep());
-            vo.setApplyStatus(latestLog.getApplyStatus());
+            PiInfoVO piInfo = professionalGroupMapper.selectPiinfoById(piInfoId);
+            if (piInfo != null) {
+                vo.setCurrentStep(piInfo.getCurrentStep());
+                vo.setApplyStatus(piInfo.getApplyStatus());
+                vo.setDrugAdminRecordTime(piInfo.getDrugAdminRecordTime());
+            } else {
+                vo.setCurrentStep(latestLog.getCurrentStep());
+                vo.setApplyStatus(latestLog.getApplyStatus());
+            }
 
             result.add(vo);
         }

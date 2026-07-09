@@ -24,8 +24,6 @@ public class ProfessionalGroupMemberCreateDTO {
     /** 专业组任职（多选，List<String> 接收） */
     private List<String> roles;
 
-    /** 简历 */
-    private String resumeText;
     private MultipartFile resumeFile;
 
     /** 证书文件（前端传文件，数据库存路径） */

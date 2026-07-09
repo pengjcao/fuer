@@ -160,6 +160,7 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
                 Boolean.TRUE.equals(dto.getClinicalParticipation()) ? 1 : 0,
                 dto.getClinicalReason(),
                 clinicalRootPath,
+                dto.getShanchang(),
                 selfAssessmentReportPath,  // 自评报告路径
                 recordTypesStr,            // 专业组备案类型
                 hospitalAreasStr           // 所属院区
@@ -170,6 +171,74 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         }
     }
 
+    @Override
+    public PiInfoVO getRejectedPiInfoForResubmit(Integer piInfoId) {
+        PiInfoVO pi = getRejectedPiInfo(piInfoId);
+        PiInfoVO result = convertFilePaths(pi);
+        fillClinicalMaterials(Collections.singletonList(result));
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public void resubmitRejectedPiInfo(Integer piInfoId, PiInfoDTO dto) {
+        PiInfoVO existing = getRejectedPiInfo(piInfoId);
+        String id = BaseContext.getCurrentId();
+        dto.setId(id);
+
+        String baseDir = filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId));
+        File baseFolder = new File(baseDir);
+        if (!baseFolder.exists()) baseFolder.mkdirs();
+
+        String piPhotoPath = saveOrKeep(dto.getPiPhoto(), baseDir, dto.getExistingPiPhotoPath());
+        String idCardCopyPath = saveOrKeep(dto.getIdCardCopy(), baseDir, dto.getExistingIdCardCopyPath());
+        String seniorTitleCertificatePath = saveOrKeep(dto.getSeniorTitleCertificate(), baseDir, dto.getExistingSeniorTitleCertificatePath());
+        String seniorTitleAppointmentPath = saveOrKeep(dto.getSeniorTitleAppointment(), baseDir, dto.getExistingSeniorTitleAppointmentPath());
+        String signedResumePath = saveOrKeep(dto.getSignedResume(), baseDir, dto.getExistingSignedResumePath());
+        String qualificationCertificatePath = saveOrKeep(dto.getQualificationCertificate(), baseDir, dto.getExistingQualificationCertificatePath());
+        String practiceCertificatePath = saveOrKeep(dto.getPracticeCertificate(), baseDir, dto.getExistingPracticeCertificatePath());
+        String gcpCertificatePath = saveOrKeep(dto.getGcpCertificate(), baseDir, dto.getExistingGcpCertificatePath());
+        String selfAssessmentReportPath = saveOrKeep(dto.getSelfAssessmentReport(), baseDir, dto.getExistingSelfAssessmentReportPath());
+
+        String recordTypesStr = dto.getRecordTypes() != null ? String.join(",", dto.getRecordTypes()) : existing.getRecordTypes();
+        String hospitalAreasStr = dto.getHospitalAreas() != null ? String.join(",", dto.getHospitalAreas()) : existing.getHospitalAreas();
+        String professional = StringUtils.hasText(dto.getProfessional()) ? dto.getProfessional() : existing.getProfessional();
+        String shanchang = StringUtils.hasText(dto.getShanchang()) ? dto.getShanchang() : existing.getShanchang();
+        Integer applyType = dto.getApplyType() != null ? dto.getApplyType() : existing.getApplyType();
+
+        List<ClinicalMaterialVO> clinicalMaterialList = buildResubmitClinicalMaterials(dto, id, piInfoId);
+        boolean hasClinicalMaterials = !clinicalMaterialList.isEmpty();
+        String clinicalRootPath = hasClinicalMaterials
+                ? filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical")
+                : null;
+
+        professionalGroupMapper.updatePiInfoForResubmit(
+                piInfoId,
+                id,
+                professional,
+                applyType,
+                piPhotoPath,
+                seniorTitleCertificatePath,
+                seniorTitleAppointmentPath,
+                signedResumePath,
+                qualificationCertificatePath,
+                practiceCertificatePath,
+                gcpCertificatePath,
+                idCardCopyPath,
+                hasClinicalMaterials ? 1 : 0,
+                dto.getClinicalReason(),
+                clinicalRootPath,
+                shanchang,
+                selfAssessmentReportPath,
+                recordTypesStr,
+                hospitalAreasStr
+        );
+
+        professionalGroupMapper.deleteClinicalMaterialsByPiInfoId(piInfoId);
+        for (ClinicalMaterialVO material : clinicalMaterialList) {
+            professionalGroupMapper.insertClinicalMaterial(piInfoId, material);
+        }
+    }
 
 
 
@@ -236,10 +305,12 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
         // 1. 查询当前审批步骤
         PiInfoVO pi = professionalGroupMapper.selectPiinfoById(piInfoId);
 
-        pi.setApplyStatus("APPROVE");
+        if (pi == null) {
+            throw new RuntimeException("PI 信息不存在");
+        }
         Integer  currentStep=pi.getCurrentStep();
         if (currentStep == null) {
-            throw new RuntimeException("PI 信息不存在");
+            throw new RuntimeException("PI 审批步骤不存在");
         }
 
         // 2. 校验：必须是机构主任已完成审批（step = 4）
@@ -249,6 +320,131 @@ public class ProfessionalGroupServiceImpl implements ProfessionalGroupService {
 
         // 3. 填写备案时间
         professionalGroupMapper.updateDrugAdminRecordTime(piInfoId, recordTime);
+    }
+
+    private PiInfoVO getRejectedPiInfo(Integer piInfoId) {
+        if (piInfoId == null) {
+            throw new RuntimeException("PI 信息ID不能为空");
+        }
+        PiInfoVO pi = professionalGroupMapper.selectPiinfoById(piInfoId);
+        if (pi == null) {
+            throw new RuntimeException("PI 信息不存在");
+        }
+
+        String currentId = BaseContext.getCurrentId();
+        if (!Objects.equals(currentId, pi.getId())) {
+            throw new RuntimeException("无权限修改该 PI 备案申请");
+        }
+
+        String status = pi.getApplyStatus() == null ? "" : pi.getApplyStatus().trim().toUpperCase();
+        if (pi.getCurrentStep() != 0 && !"REJECT".equals(status) && !"REJECTED".equals(status)) {
+            throw new RuntimeException("只有已驳回的申请才能回填修改");
+        }
+        return pi;
+    }
+
+    private String saveOrKeep(MultipartFile file, String baseDir, String oldPath) {
+        String newPath = saveFile(file, baseDir);
+        return StringUtils.hasText(newPath) ? newPath : filePathUtil.toStoragePath(oldPath);
+    }
+
+    private List<ClinicalMaterialVO> buildResubmitClinicalMaterials(PiInfoDTO dto, String id, Integer piInfoId) {
+        if (dto.getClinicalMaterials() == null || dto.getClinicalMaterials().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<ClinicalMaterialVO> result = new ArrayList<>();
+        int materialIndex = 1;
+        for (ClinicalMaterialDTO cm : dto.getClinicalMaterials()) {
+            if (!hasClinicalMaterialForResubmit(cm)) {
+                materialIndex++;
+                continue;
+            }
+
+            String projectDirName = "project-" + materialIndex;
+            ClinicalMaterialVO material = new ClinicalMaterialVO();
+            material.setProjectName(cm.getProjectName());
+            material.setNmpaApprovalPath(mergeExistingAndNewFiles(
+                    cm.getExistingNmpaApprovalPaths(),
+                    cm.getNmpaApproval(),
+                    filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "nmpaApproval")
+            ));
+            material.setDelegationTablePath(mergeExistingAndNewFiles(
+                    cm.getExistingDelegationTablePaths(),
+                    cm.getDelegationTable(),
+                    filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "delegationTable")
+            ));
+            material.setTrainingRecordPath(mergeExistingAndNewFiles(
+                    cm.getExistingTrainingRecordPaths(),
+                    cm.getTrainingRecord(),
+                    filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "trainingRecord")
+            ));
+            material.setProcessFilesPath(mergeExistingAndNewFiles(
+                    cm.getExistingProcessFilesPaths(),
+                    cm.getProcessFiles(),
+                    filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "processFiles")
+            ));
+            material.setCompletionFilesPath(mergeExistingAndNewFiles(
+                    cm.getExistingCompletionFilesPaths(),
+                    cm.getCompletionFiles(),
+                    filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "completionFiles")
+            ));
+            material.setOtherFilesPath(mergeExistingAndNewFiles(
+                    cm.getExistingOtherFilesPaths(),
+                    cm.getOtherFiles(),
+                    filePathUtil.buildUploadDir("Pi", id, String.valueOf(piInfoId), "clinical", projectDirName, "otherFiles")
+            ));
+
+            result.add(material);
+            materialIndex++;
+        }
+        return result;
+    }
+
+    private String mergeExistingAndNewFiles(List<String> existingPaths, List<MultipartFile> files, String path) {
+        List<String> mergedPaths = new ArrayList<>();
+        if (existingPaths != null) {
+            existingPaths.stream()
+                    .filter(StringUtils::hasText)
+                    .map(filePathUtil::toStoragePath)
+                    .filter(StringUtils::hasText)
+                    .forEach(mergedPaths::add);
+        }
+
+        String savedFiles = saveFiles(files, path);
+        if (StringUtils.hasText(savedFiles)) {
+            Arrays.stream(savedFiles.split("\\R"))
+                    .filter(StringUtils::hasText)
+                    .forEach(mergedPaths::add);
+        }
+
+        if (mergedPaths.isEmpty()) {
+            return null;
+        }
+        return String.join("\n", mergedPaths);
+    }
+
+    private boolean hasClinicalMaterialForResubmit(ClinicalMaterialDTO cm) {
+        if (cm == null) {
+            return false;
+        }
+        return StringUtils.hasText(cm.getProjectName())
+                || hasFiles(cm.getNmpaApproval())
+                || hasFiles(cm.getDelegationTable())
+                || hasFiles(cm.getTrainingRecord())
+                || hasFiles(cm.getProcessFiles())
+                || hasFiles(cm.getCompletionFiles())
+                || hasFiles(cm.getOtherFiles())
+                || hasTextItems(cm.getExistingNmpaApprovalPaths())
+                || hasTextItems(cm.getExistingDelegationTablePaths())
+                || hasTextItems(cm.getExistingTrainingRecordPaths())
+                || hasTextItems(cm.getExistingProcessFilesPaths())
+                || hasTextItems(cm.getExistingCompletionFilesPaths())
+                || hasTextItems(cm.getExistingOtherFilesPaths());
+    }
+
+    private boolean hasTextItems(List<String> items) {
+        return items != null && items.stream().anyMatch(StringUtils::hasText);
     }
 
 

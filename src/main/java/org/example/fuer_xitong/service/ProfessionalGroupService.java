@@ -13,6 +13,10 @@ public interface ProfessionalGroupService {
 
     void  addPiInfo(PiInfoDTO dto);
 
+    PiInfoVO getRejectedPiInfoForResubmit(Integer piInfoId);
+
+    void resubmitRejectedPiInfo(Integer piInfoId, PiInfoDTO dto);
+
     List<PiInfoVO> getPendingApprovalList();
 
     List<PiInfoVO> getApprovedPiList();

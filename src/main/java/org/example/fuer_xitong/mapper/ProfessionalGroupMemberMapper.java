@@ -18,7 +18,6 @@ public interface ProfessionalGroupMemberMapper {
             @Param("academicPosition") String academicPosition,
             @Param("talentTitle") String talentTitle,
             @Param("roles") String roles,
-            @Param("resumeText") String resumeText,
             @Param("resumeFilePath") String resumeFilePath,
             @Param("gcpCertPath") String gcpCertPath,
             @Param("practiceCertPath") String practiceCertPath,
@@ -31,4 +30,8 @@ public interface ProfessionalGroupMemberMapper {
             @Param("departmentId") Integer departmentId,
             @Param("groupPath") String groupPath
     );
+
+    ProfessionalGroupMemberVO selectById(@Param("id") Integer id);
+
+    int deleteById(@Param("id") Integer id);
 }

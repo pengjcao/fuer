@@ -9,4 +9,6 @@ public interface ProfessionalGroupMemberService {
     void createMember(ProfessionalGroupMemberCreateDTO dto);
 
     List<ProfessionalGroupMemberVO> queryMembers(Integer departmentId, String groupPath);
+
+    void deleteMember(Integer id);
 }

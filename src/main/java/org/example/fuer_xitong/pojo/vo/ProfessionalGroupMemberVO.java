@@ -29,8 +29,6 @@ public class ProfessionalGroupMemberVO {
     /** 转换后的前端多选 */
     private List<String> rolesList; // 前端用
 
-    /** 简历 */
-    private String resumeText;
     private String resumeFileUrl;
 
     /** 证书 */

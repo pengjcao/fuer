@@ -19,6 +19,14 @@ public class PiInfoDTO {
     private MultipartFile qualificationCertificate;
     private MultipartFile practiceCertificate;
     private MultipartFile gcpCertificate;
+    private String existingPiPhotoPath;
+    private String existingIdCardCopyPath;
+    private String existingSeniorTitleCertificatePath;
+    private String existingSeniorTitleAppointmentPath;
+    private String existingSignedResumePath;
+    private String existingQualificationCertificatePath;
+    private String existingPracticeCertificatePath;
+    private String existingGcpCertificatePath;
     private String shanchang;
 
     private Boolean clinicalParticipation; // 是否上传临床材料
@@ -31,5 +39,6 @@ public class PiInfoDTO {
     private List<String> recordTypes; // 专业组备案类型
     private List<String> hospitalAreas; // 专业组涉及院区
     private MultipartFile selfAssessmentReport; // 自评报告
+    private String existingSelfAssessmentReportPath;
 }
 
